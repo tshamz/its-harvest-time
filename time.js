@@ -1,6 +1,7 @@
 var http              = require('http');
 var path              = require('path');
 var Harvest           = require('harvest');
+var moment            = require('moment');
 var express           = require('express');
 var bodyParser        = require('body-parser');
 var methodOverride    = require('method-override');
@@ -82,7 +83,8 @@ var routes = {
           task: {
             id: entry.task_id,
             title: entry.task,
-            note: entry.notes
+            note: entry.notes,
+            hours: entry.hours
           },
           billable: getBillableStatus(projects, entry)
         };

@@ -22,7 +22,7 @@ var People = harvest.People;
 var Entries = [];
 
 TimeTracking.daily({}, function(err, data) {
-  console.log('TODAYS DATA: ' + data);
+  console.dir('TODAYS DATA: ' + data);
 });
 
 var storeEntries = function (entries) {

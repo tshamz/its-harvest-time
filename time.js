@@ -20,34 +20,23 @@ var harvest = new Harvest({
 var TimeTracking = harvest.TimeTracking;
 var People = harvest.People;
 var Entries = [];
+var Developers = {};
 
-TimeTracking.daily({}, function(err, data) {
-  console.dir(data);
-});
-
-
-var storeEntries = function (entries) {
-  Entries = entries;
-  return Q.defer().resolve();
-};
-
-var getTimeEntry = function (developer) {
+var getTimeEntry = function (developer, day) {
   var deferred = Q.defer();
-  var developerId = developer.user.id;
-  var tuesday = new Date(2017, 1, 7, 12, 0, 0);
-  TimeTracking.daily({date: tuesday, of_user: developerId}, function (err, data) {
+  var today = new Date();
+  TimeTracking.daily({date: day, of_user: developerId}, function (err, data) {
     if (err) {
       console.log('err');
       deferred.reject(new Error(error));
     } else {
-      var entry = {
-        firstName: developer.user.first_name.toLowerCase(),
-        lastName: developer.user.last_name.toLowerCase(),
-        name: developer.user.first_name.toLowerCase() + ' ' + developer.user.last_name.toLowerCase(),
-        id: developerId,
-        entries: data.day_entries
-      };
-      deferred.resolve(entry);
+      Developers[developer.user.id].entries = Developers[developer.user.id].entries.concat(data.day_entries);
+      if (day.getDay() === today.getDay()) {
+        Developers[developer.user.id].active = data.day_entries.some(function (entry) {
+          return entry.hasOwnProperty('timer_started_at');
+        });
+      }
+      deferred.resolve();
     }
   });
   return deferred.promise;
@@ -55,6 +44,9 @@ var getTimeEntry = function (developer) {
 
 var getTimeEntries = function(developers) {
   var promises = [];
+  var tuesday = new Date(2017, 1, 7, 12, 0, 0);
+  var today = new Date();
+  var days = [today, tuesday];
   developers.forEach(function (developer) {
     promises.push(getTimeEntry(developer));
   });
@@ -69,8 +61,18 @@ var getDevelopers = function () {
     } else {
       var developers = people.filter(function (data) {
         return data.user.department.toLowerCase().indexOf('development') !== -1 && data.user.is_active;
+      }).forEach(function (developer) {
+        Developers[developer.user.id] = {
+          name: {
+            first: developer.user.first_name.toLowerCase(),
+            last: developer.user.last_name.toLowerCase(),
+            name: developer.user.first_name.toLowerCase() + ' ' + developer.user.last_name.toLowerCase()
+          },
+          entries: [],
+          active: false
+        }
+        deferred.resolve(developers);
       });
-      deferred.resolve(developers);
     }
   });
   return deferred.promise;
@@ -127,7 +129,7 @@ var routes = {
     res.json(data);
   },
   getData: function(req, res) {
-    res.json({"data": Entries});
+    res.json({"data": Developers});
     // TimeTracking.daily({}, function(err, data) {
     //   var entries = data.day_entries;
     //   var projects = data.projects;
@@ -175,4 +177,4 @@ var startExpress = function () {
   return deferred.promise;
 };
 
-Q.fcall(getDevelopers).then(getTimeEntries).then(storeEntries).then(startExpress);
+Q.fcall(getDevelopers).then(getTimeEntries).then(startExpress);

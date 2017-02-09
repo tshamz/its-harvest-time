@@ -44,11 +44,11 @@ var getTimeEntry = function (developer, day) {
 };
 
 var getTimeEntries = function(developers) {
-  console.log('2');
   var promises = [];
   var tuesday = new Date(2017, 1, 7, 12, 0, 0);
   var today = new Date();
   var days = [today, tuesday];
+  console.log(developers);
   console.log('outer');
   developers.forEach(function (developer) {
     console.log('inner');
@@ -60,7 +60,6 @@ var getTimeEntries = function(developers) {
 };
 
 var getDevelopers = function () {
-  console.log('1');
   var deferred = Q.defer();
   People.list({}, function (err, people) {
     if (err) {

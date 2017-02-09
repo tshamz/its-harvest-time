@@ -49,10 +49,10 @@ var getTimeEntries = function(developers) {
   var tuesday = new Date(2017, 1, 7, 12, 0, 0);
   var today = new Date();
   var days = [today, tuesday];
+  console.log('outer');
   developers.forEach(function (developer) {
-    console.log('outer');
+    console.log('inner');
     days.forEach(function (day) {
-      console.log('inner');
       promises.push(getTimeEntry(developer, day));
     });
   });
@@ -78,8 +78,8 @@ var getDevelopers = function () {
           entries: [],
           active: false
         };
-        deferred.resolve(developers);
       });
+      deferred.resolve(developers);
     }
   });
   return deferred.promise;

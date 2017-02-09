@@ -20,31 +20,49 @@ var harvest = new Harvest({
 var TimeTracking = harvest.TimeTracking;
 var People = harvest.People;
 
-var persons = [];
-var today = moment().dayOfYear();
-var yesterday = today - 1;
-
-var getTimeEntries = function (developers) {
-  console.log(developers);
+var reportEntries = function (entries) {
+  console.log('3');
+  console.log(entries);
   var deferred = Q.defer();
-  TimeTracking.daily({date: new Date(2017, 1, 7, 12, 0, 0), of_user: '1307711'}, function (err, data) {
+  // if (err) {
+  //   console.log('err');
+  //   deferred.reject(new Error(error));
+  // } else {
+  //   deferred.resolve(data);
+  // }
+  return deferred.promise;
+};
+
+var getTimeEntry = function (developer) {
+  var deferred = Q.defer();
+  var developerId = developer.user.id;
+  var tuesday = new Date(2017, 1, 7, 12, 0, 0);
+  TimeTracking.daily({date: tuesday, of_user: developerId}, function (err, data) {
     if (err) {
       console.log('err');
-      deferred.reject(new Error(err));
+      deferred.reject(new Error(error));
     } else {
-      console.log(data);
-      console.log('success');
-      deferred.resolve(data);
+      var entry = {
+        id: developerId,
+        entries: data.day_entries
+      };
+      deferred.resolve(entry);
     }
   });
   return deferred.promise;
+};
 
-  // for (var i = 0; i < 5; i++) {
-
-  // }
+var getTimeEntries = function(developers) {
+  console.log('2');
+  var promises = [];
+  developers.forEach(function (developer) {
+    promises.push(getTimeEntry(developer));
+  });
+  return Q.all(promises);
 };
 
 var getDevelopers = function () {
+  console.log('1');
   var deferred = Q.defer();
   People.list({}, function (err, people) {
     if (err) {
@@ -59,7 +77,7 @@ var getDevelopers = function () {
   return deferred.promise;
 };
 
-Q.fcall(getDevelopers).then(getTimeEntries);
+Q.fcall(getDevelopers).then(getTimeEntries).then(reportEntries);
 // Q.fcall(getDevelopers);
 // Q.fcall(getTimeEntries);
 

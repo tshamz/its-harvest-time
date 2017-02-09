@@ -1,6 +1,0 @@
-{
-  "harvest": {
-    "subdomain": "bva",
-    "oauth_redirect_uri": "localhost:1337"
-  }
-}

@@ -26,7 +26,7 @@ var yesterday = moment().subtract(1, 'day').format('MM-DD-YYYY');
 var getTimeEntries = function (developers) {
   console.log(developers);
   var deferred = Q.defer();
-  TimeTracking.daily({date: Date.now(), of_user: '1307711', slim: 1}, function (err, data) {
+  TimeTracking.daily({date: new Date, of_user: '1307711', slim: 1}, function (err, data) {
     if (err) {
       console.log('err');
       deferred.reject(new Error(err));

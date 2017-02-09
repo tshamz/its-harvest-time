@@ -43,7 +43,11 @@ var getTimeEntry = function (developer, day) {
 
 var getTimeEntries = function(developers) {
   var promises = [];
-  var days = [new Date(), new Date(2017, 1, 7, 12, 0, 0)];
+  var days = [];
+  var today = new Date;
+  for (var i = 0; i < today.getDay(); i++) {
+    days.push(new Date(today.getFullYear(), today.getMonth(), (today.getDate() - i), 12, 0, 0));
+  };
   developers.forEach(function (developer) {
     days.forEach(function (day) {
       promises.push(getTimeEntry(developer, day));

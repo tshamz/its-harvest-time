@@ -1,3 +1,4 @@
+var Q                 = require('q');
 var http              = require('http');
 var path              = require('path');
 var Harvest           = require('harvest');
@@ -17,6 +18,15 @@ var harvest = new Harvest({
 });
 
 var TimeTracking = harvest.TimeTracking;
+var People = harvest.People;
+
+var persons = [];
+
+Q.fcall(function () {
+  People.list({}, function (people) {
+    console.log(people);
+  });
+});
 
 /**
  * ExpressJS App
@@ -67,6 +77,9 @@ var routes = {
     res.json(data);
   },
   getData: function(req, res) {
+
+
+
     TimeTracking.daily({}, function(err, data) {
       var entries = data.day_entries;
       var projects = data.projects;

@@ -23,10 +23,9 @@ var Entries = [];
 var Developers = {};
 
 var getTimeEntry = function (developer, day) {
-  console.log('3');
   var deferred = Q.defer();
   var today = new Date();
-  TimeTracking.daily({date: day, of_user: developerId}, function (err, data) {
+  TimeTracking.daily({date: day, of_user: developer.user.id}, function (err, data) {
     if (err) {
       console.log('err');
       deferred.reject(new Error(error));
@@ -44,11 +43,9 @@ var getTimeEntry = function (developer, day) {
 };
 
 var getTimeEntries = function(developers) {
-  console.log(developers);
   var promises = [];
   var days = [new Date(), new Date(2017, 1, 7, 12, 0, 0)];
   developers.forEach(function (developer) {
-    console.log('inner');
     days.forEach(function (day) {
       promises.push(getTimeEntry(developer, day));
     });

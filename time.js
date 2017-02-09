@@ -37,7 +37,9 @@ var getTimeEntry = function (developer) {
       deferred.reject(new Error(error));
     } else {
       var entry = {
-        name: developer.user.first_name + ' ' + developer.user.last_name,
+        firstName: developer.user.first_name.toLowerCase(),
+        lastName: developer.user.last_name.toLowerCase(),
+        name: developer.user.first_name.toLowerCase() + ' ' + developer.user.last_name.toLower(),
         id: developerId,
         entries: data.day_entries
       };

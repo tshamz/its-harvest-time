@@ -21,12 +21,17 @@ var TimeTracking = harvest.TimeTracking;
 var People = harvest.People;
 
 var persons = [];
-var yesterday = moment().subtract(1, 'day').format('MM-DD-YYYY');
+var today = moment().dayOfYear();
+var yesterday = today - 1;
 
 var getTimeEntries = function (developers) {
   console.log(developers);
   var deferred = Q.defer();
-  TimeTracking.daily({date: new Date, of_user: '1307711', slim: 1}, function (err, data) {
+  TimeTracking.daily({
+    date: {day: yesterday, year: '2017'},
+    of_user: '1307711',
+    slim: 1
+  }, function (err, data) {
     if (err) {
       console.log('err');
       deferred.reject(new Error(err));

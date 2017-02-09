@@ -21,9 +21,12 @@ var TimeTracking = harvest.TimeTracking;
 var People = harvest.People;
 var Entries = [];
 
+TimeTracking.daily({}, function(err, data) {
+  console.log('TODAYS DATA: ' + data);
+});
+
 var storeEntries = function (entries) {
   Entries = entries;
-  console.log(Entries);
   return Q.defer().resolve();
 };
 

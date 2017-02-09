@@ -6,20 +6,17 @@ var express           = require('express');
 var bodyParser        = require('body-parser');
 var methodOverride    = require('method-override');
 
-
 /**
  * Harvest Integration
  */
 
-var TimeTracking = null;
-var harvestAccessToken = null;
-
 var harvest = new Harvest({
   subdomain: process.env.subdomain,
-  redirect_uri: process.env.redirect_uri,
-  identifier: process.env.identifier,
-  secret: process.env.client_secret
+  email: process.env.email,
+  password: process.env.password
 });
+
+var TimeTracking = harvest.TimeTracking;
 
 /**
  * ExpressJS App
@@ -63,26 +60,11 @@ var getBillableStatus = function(projects, entry) {
 var routes = {
   index: function(req, res) {
     console.log("main route requested");
-    if (harvestAccessToken === null) {
-      res.redirect('/login');
-    } else {
-      var data = {
-        status: 'OK',
-        message: 'Time to get harvesting!'
-      };
-      res.json(data);
-    }
-  },
-  login: function (req, res) {
-    res.redirect(harvest.getAccessTokenURL());
-  },
-  oauth: function (req, res) {
-    var accessCode = req.query.code;
-    harvest.parseAccessCode(accessCode, function (accessToken) {
-      console.log('Grabbed the access token to save', access_token);
-      harvestAccessToken = accessToken;
-      TimeTracking = harvest.TimeTracking;
-    });
+    var data = {
+      status: 'OK',
+      message: 'Time to get harvesting!'
+    };
+    res.json(data);
   },
   getData: function(req, res) {
     TimeTracking.daily({}, function(err, data) {
@@ -113,7 +95,6 @@ var routes = {
 
 // API routes
 app.get('/', routes.index);
-app.get('/login', routes.login);
 app.get('/api/time', routes.getData);
 
 

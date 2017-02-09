@@ -73,7 +73,8 @@ var getDevelopers = function () {
           },
           entries: [],
           active: false
-        }
+        };
+        console.log(Developers);
         deferred.resolve(developers);
       });
     }

@@ -19,18 +19,12 @@ var harvest = new Harvest({
 
 var TimeTracking = harvest.TimeTracking;
 var People = harvest.People;
+var Entries = [];
 
-var reportEntries = function (entries) {
-  console.log('3');
-  console.log(entries);
-  var deferred = Q.defer();
-  // if (err) {
-  //   console.log('err');
-  //   deferred.reject(new Error(error));
-  // } else {
-  //   deferred.resolve(data);
-  // }
-  return deferred.promise;
+var storeEntries = function (entries) {
+  Entries = entries;
+  console.log(Entries);
+  return Q.defer().resolve();
 };
 
 var getTimeEntry = function (developer) {
@@ -43,6 +37,7 @@ var getTimeEntry = function (developer) {
       deferred.reject(new Error(error));
     } else {
       var entry = {
+        name: developer.user.first_name + ' ' + developer.user.last_name,
         id: developerId,
         entries: data.day_entries
       };
@@ -53,7 +48,6 @@ var getTimeEntry = function (developer) {
 };
 
 var getTimeEntries = function(developers) {
-  console.log('2');
   var promises = [];
   developers.forEach(function (developer) {
     promises.push(getTimeEntry(developer));
@@ -62,7 +56,6 @@ var getTimeEntries = function(developers) {
 };
 
 var getDevelopers = function () {
-  console.log('1');
   var deferred = Q.defer();
   People.list({}, function (err, people) {
     if (err) {
@@ -77,101 +70,103 @@ var getDevelopers = function () {
   return deferred.promise;
 };
 
-Q.fcall(getDevelopers).then(getTimeEntries).then(reportEntries);
-// Q.fcall(getDevelopers);
-// Q.fcall(getTimeEntries);
+
 
 /**
  * ExpressJS App
  */
 
-// var app = express();
-// app.set('port', process.env.PORT || 5000);
-// app.use(bodyParser.json());
-// app.use(bodyParser.urlencoded({ extended: false }));
-// app.use(methodOverride());
+var app = express();
+app.set('port', process.env.PORT || 5000);
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(methodOverride());
 
-// /**
-//  * CORS support for AJAX requests
-//  */
+/**
+ * CORS support for AJAX requests
+ */
 
-// app.all('*', function(req, res, next){
-//   if (!req.get('Origin')) return next();
-//   res.set('Access-Control-Allow-Origin', '*');
-//   res.set('Access-Control-Allow-Methods', 'PUT');
-//   res.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
-//   if ('OPTIONS' == req.method) return res.send(200);
-//   next();
-// });
+app.all('*', function(req, res, next){
+  if (!req.get('Origin')) return next();
+  res.set('Access-Control-Allow-Origin', '*');
+  res.set('Access-Control-Allow-Methods', 'PUT');
+  res.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
+  if ('OPTIONS' == req.method) return res.send(200);
+  next();
+});
 
-// /**
-//  * ROUTES
-//  */
+/**
+ * ROUTES
+ */
 
-// var getBillableStatus = function(projects, entry) {
-//   for (var i = 0; i < projects.length; i++) {
-//     if (projects[i].id == entry.project_id) {
-//       for (var n = 0; n < projects[i].tasks.length; n++) {
-//         if (projects[i].tasks[n].id == entry.task_id) {
-//           return projects[i].tasks[n].billable;
-//         }
-//       }
-//     }
-//   }
-// };
+var getBillableStatus = function(projects, entry) {
+  for (var i = 0; i < projects.length; i++) {
+    if (projects[i].id == entry.project_id) {
+      for (var n = 0; n < projects[i].tasks.length; n++) {
+        if (projects[i].tasks[n].id == entry.task_id) {
+          return projects[i].tasks[n].billable;
+        }
+      }
+    }
+  }
+};
 
-// var routes = {
-//   index: function(req, res) {
-//     console.log("main route requested");
-//     var data = {
-//       status: 'OK',
-//       message: 'Time to get harvesting!'
-//     };
-//     res.json(data);
-//   },
-//   getData: function(req, res) {
+var routes = {
+  index: function(req, res) {
+    console.log("main route requested");
+    var data = {
+      status: 'OK',
+      message: 'Time to get harvesting!'
+    };
+    res.json(data);
+  },
+  getData: function(req, res) {
+    res.json({"data": Entries});
+    // TimeTracking.daily({}, function(err, data) {
+    //   var entries = data.day_entries;
+    //   var projects = data.projects;
+    //   var lineItems = [];
+    //   entries.forEach(function(entry) {
+    //     var entryInformation = {
+    //       project: {
+    //         id: entry.project_id,
+    //         title: entry.project,
+    //         client: entry.client
+    //       },
+    //       task: {
+    //         id: entry.task_id,
+    //         title: entry.task,
+    //         note: entry.notes,
+    //         hours: entry.hours
+    //       },
+    //       billable: getBillableStatus(projects, entry)
+    //     };
+    //     lineItems.push(entryInformation);
+    //   });
+    //   res.json({"data": lineItems});
+    // });
+  }
+};
 
+// API routes
+app.get('/', routes.index);
+app.get('/api/time', routes.getData);
 
+app.use(function(req, res, next){  // if route not found, respond with 404
+  var jsonData = {
+    status: 'ERROR',
+    message: 'Sorry, we cannot find the requested URI'
+  };
+  res.status(404).send(jsonData);  // set status as 404 and respond with data
+});
 
-//     TimeTracking.daily({}, function(err, data) {
-//       var entries = data.day_entries;
-//       var projects = data.projects;
-//       var lineItems = [];
-//       entries.forEach(function(entry) {
-//         var entryInformation = {
-//           project: {
-//             id: entry.project_id,
-//             title: entry.project,
-//             client: entry.client
-//           },
-//           task: {
-//             id: entry.task_id,
-//             title: entry.task,
-//             note: entry.notes,
-//             hours: entry.hours
-//           },
-//           billable: getBillableStatus(projects, entry)
-//         };
-//         lineItems.push(entryInformation);
-//       });
-//       res.json({"data": lineItems});
-//     });
-//   }
-// };
+var startExpress = function () {
+  var deferred = Q.defer();
+  http.createServer(app).listen(app.get('port'), function() {  // create NodeJS HTTP server using 'app'
+    console.log("Express server listening on port " + app.get('port'));
+    deferred.resolve();
+  });
+  return deferred.promise;
+};
 
-// // API routes
-// app.get('/', routes.index);
-// app.get('/api/time', routes.getData);
-
-
-// app.use(function(req, res, next){  // if route not found, respond with 404
-//   var jsonData = {
-//     status: 'ERROR',
-//     message: 'Sorry, we cannot find the requested URI'
-//   };
-//   res.status(404).send(jsonData);  // set status as 404 and respond with data
-// });
-
-// http.createServer(app).listen(app.get('port'), function() {  // create NodeJS HTTP server using 'app'
-//   console.log("Express server listening on port " + app.get('port'));
-// });
+Q.fcall(getDevelopers).then(getTimeEntries).then(storeEntries).then(startExpress);

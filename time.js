@@ -25,6 +25,7 @@ TimeTracking.daily({}, function(err, data) {
   console.dir(data);
 });
 
+
 var storeEntries = function (entries) {
   Entries = entries;
   return Q.defer().resolve();

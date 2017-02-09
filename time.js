@@ -23,7 +23,7 @@ var People = harvest.People;
 var persons = [];
 
 Q.fcall(function () {
-  People.list({}, function (people) {
+  People.list({}, function (err, people) {
     console.log(people);
   });
 });

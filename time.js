@@ -24,12 +24,13 @@ var persons = [];
 var yesterday = moment().subtract(1, 'day').format('MM-DD-YYYY');
 
 var getTimeEntries = function (developers) {
-  console.log('ding');
   var deferred = Q.defer();
   TimeTracking.daily({date: yesterday}, function (err, data) {
     if (err) {
+      console.log('ding');
       deferred.reject(new Error(err));
     } else {
+      console.log('dong');
       console.log(data);
       deferred.resolve(data);
     }

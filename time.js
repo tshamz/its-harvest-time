@@ -21,9 +21,24 @@ var TimeTracking = harvest.TimeTracking;
 var People = harvest.People;
 
 var persons = [];
+var yesterday = moment().subtract(1, 'day').format('MM-DD-YYYY');
 
+var getTimeEntries = function (developers) {
+  var deferred = Q.defer();
+  TimeTracking.daily({date: yesterday}, function (err, data) {
+    if (err) {
+      deferred.reject(new Error(err));
+    } else {
+      console.log(data);
+      deferred.resolve(data);
+    }
+  });
+  return deferred.promise;
 
+  // for (var i = 0; i < 5; i++) {
 
+  // }
+};
 
 var getDevelopers = function () {
   var deferred = Q.defer();
@@ -32,16 +47,15 @@ var getDevelopers = function () {
       deferred.reject(new Error(err));
     } else {
       var developers = people.filter(function (data) {
-        return data.user.department.toLowerCase().indexOf('development') !== -1;
+        return data.user.department.toLowerCase().indexOf('development') !== -1 && data.user.isActive;
       });
-      console.log(developers);
       deferred.resolve(developers);
     }
   });
   return deferred.promise;
 };
 
-Q.fcall(getDevelopers).then();
+Q.fcall(getDevelopers).then(getTimeEntries);
 
 /**
  * ExpressJS App

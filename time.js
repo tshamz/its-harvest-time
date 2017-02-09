@@ -39,7 +39,7 @@ var getTimeEntry = function (developer) {
       var entry = {
         firstName: developer.user.first_name.toLowerCase(),
         lastName: developer.user.last_name.toLowerCase(),
-        name: developer.user.first_name.toLowerCase() + ' ' + developer.user.last_name.toLower(),
+        name: developer.user.first_name.toLowerCase() + ' ' + developer.user.last_name.toLowerCase(),
         id: developerId,
         entries: data.day_entries
       };

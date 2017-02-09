@@ -181,8 +181,9 @@ var startExpress = function () {
 var intervalCount = 0;
 setInterval(function () {
   if (intervalCount === 0) {
-    Q.fcall(getDevelopers).then(getTimeEntries).then(startExpress);
+    Q.fcall(getDevelopers).then(getTimeEntries).then(startExpress).done();
   } else {
-    Q.fcall(getDevelopers).then(getTimeEntries);
+    Q.fcall(getDevelopers).then(getTimeEntries).done();
   }
+  intervalCount += 1;
 }, 1000*60*10);

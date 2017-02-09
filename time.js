@@ -23,7 +23,7 @@ var Entries = [];
 var Developers = {};
 
 var getTimeEntry = function (developer, day) {
-  console.log('2');
+  console.log('3');
   var deferred = Q.defer();
   var today = new Date();
   TimeTracking.daily({date: day, of_user: developerId}, function (err, data) {
@@ -44,13 +44,15 @@ var getTimeEntry = function (developer, day) {
 };
 
 var getTimeEntries = function(developers) {
-  console.log('3');
+  console.log('2');
   var promises = [];
   var tuesday = new Date(2017, 1, 7, 12, 0, 0);
   var today = new Date();
   var days = [today, tuesday];
   developers.forEach(function (developer) {
-    promises.push(getTimeEntry(developer));
+    days.forEach(function (day) {
+      promises.push(getTimeEntry(developer, day));
+    });
   });
   return Q.all(promises);
 };

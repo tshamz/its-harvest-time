@@ -23,6 +23,7 @@ var Entries = [];
 var Developers = {};
 
 var getTimeEntry = function (developer, day) {
+  console.log('2');
   var deferred = Q.defer();
   var today = new Date();
   TimeTracking.daily({date: day, of_user: developerId}, function (err, data) {
@@ -43,6 +44,7 @@ var getTimeEntry = function (developer, day) {
 };
 
 var getTimeEntries = function(developers) {
+  console.log('3');
   var promises = [];
   var tuesday = new Date(2017, 1, 7, 12, 0, 0);
   var today = new Date();
@@ -54,6 +56,7 @@ var getTimeEntries = function(developers) {
 };
 
 var getDevelopers = function () {
+  console.log('1');
   var deferred = Q.defer();
   People.list({}, function (err, people) {
     if (err) {
@@ -77,8 +80,6 @@ var getDevelopers = function () {
   });
   return deferred.promise;
 };
-
-
 
 /**
  * ExpressJS App

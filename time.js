@@ -44,12 +44,9 @@ var getTimeEntry = function (developer, day) {
 };
 
 var getTimeEntries = function(developers) {
-  var promises = [];
-  var tuesday = new Date(2017, 1, 7, 12, 0, 0);
-  var today = new Date();
-  var days = [today, tuesday];
   console.log(developers);
-  console.log('outer');
+  var promises = [];
+  var days = [new Date(), new Date(2017, 1, 7, 12, 0, 0)];
   developers.forEach(function (developer) {
     console.log('inner');
     days.forEach(function (day) {
@@ -65,9 +62,12 @@ var getDevelopers = function () {
     if (err) {
       deferred.reject(new Error(err));
     } else {
+
       var developers = people.filter(function (data) {
         return data.user.department.toLowerCase().indexOf('development') !== -1 && data.user.is_active;
-      }).forEach(function (developer) {
+      });
+
+      developers.forEach(function (developer) {
         Developers[developer.user.id] = {
           name: {
             first: developer.user.first_name.toLowerCase(),

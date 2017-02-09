@@ -50,17 +50,16 @@ var getDevelopers = function () {
       deferred.reject(new Error(err));
     } else {
       var developers = people.filter(function (data) {
-        return data.user.department.toLowerCase().indexOf('development') !== -1 && data.user.isActive;
+        return data.user.department.toLowerCase().indexOf('development') !== -1 && data.user.is_active;
       });
-      console.log(developers);
       deferred.resolve(developers);
     }
   });
   return deferred.promise;
 };
 
-// Q.fcall(getDevelopers).then(getTimeEntries);
-Q.fcall(getDevelopers);
+Q.fcall(getDevelopers).then(getTimeEntries);
+// Q.fcall(getDevelopers);
 // Q.fcall(getTimeEntries);
 
 /**

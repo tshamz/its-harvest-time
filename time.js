@@ -14,8 +14,9 @@ var config            = require('./config.json');
 
 var harvest = new Harvest({
   subdomain: config.harvest.subdomain,
-  email: config.harvest.email,
-  password: config.harvest.password
+  redirect_uri: config.harvest.oauth_redirect_uri,
+  identifier: process.env.identifier,
+  secret: process.env.client_secret
 });
 
 var TimeTracking = harvest.TimeTracking;
@@ -62,11 +63,12 @@ var getBillableStatus = function(projects, entry) {
 var routes = {
   index: function(req, res) {
     console.log("main route requested");
-    var data = {
-      status: 'OK',
-      message: 'Time to get harvesting!'
-    };
-    res.json(data);
+    res.redirect(harvest.getAccessTokenURL());
+    // var data = {
+    //   status: 'OK',
+    //   message: 'Time to get harvesting!'
+    // };
+    // res.json(data);
   },
   getData: function(req, res) {
     TimeTracking.daily({}, function(err, data) {

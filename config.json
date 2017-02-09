@@ -1,7 +1,6 @@
 {
   "harvest": {
     "subdomain": "bva",
-    "email": "tyler@bvaccel.com",
-    "password": "hxk99500"
+    "oauth_redirect_uri": "localhost:1337"
   }
 }

@@ -28,5 +28,6 @@ build/Release
 node_modules
 
 # Misc.
+*.sublime-project
 *.sublime-workspace
 .DS_Store

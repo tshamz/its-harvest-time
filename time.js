@@ -27,11 +27,7 @@ var yesterday = today - 1;
 var getTimeEntries = function (developers) {
   console.log(developers);
   var deferred = Q.defer();
-  TimeTracking.daily({
-    date: {day: yesterday, year: '2017'},
-    of_user: '1307711',
-    slim: 1
-  }, function (err, data) {
+  TimeTracking.daily({date: new Date(2017, 1, 7, 12, 0, 0), of_user: '1307711', slim: 1}, function (err, data) {
     if (err) {
       console.log('err');
       deferred.reject(new Error(err));

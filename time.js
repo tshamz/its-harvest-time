@@ -25,11 +25,13 @@ var yesterday = moment().subtract(1, 'day').format('MM-DD-YYYY');
 
 var getTimeEntries = function (developers) {
   var deferred = Q.defer();
-  TimeTracking.daily({date: Date.now(), of_user: '1307711'}, function (err, data) {
+  TimeTracking.daily({date: Date.now(), of_user: '1307711', slim: 1}, function (err, data) {
     if (err) {
+      console.log('err');
       deferred.reject(new Error(err));
     } else {
       console.log(data);
+      console.log('success');
       deferred.resolve(data);
     }
   });
@@ -55,7 +57,8 @@ var getDevelopers = function () {
   return deferred.promise;
 };
 
-Q.fcall(getDevelopers).then(getTimeEntries);
+// Q.fcall(getDevelopers).then(getTimeEntries);
+Q.fcall(getTimeEntries);
 
 /**
  * ExpressJS App

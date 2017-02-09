@@ -22,11 +22,26 @@ var People = harvest.People;
 
 var persons = [];
 
-Q.fcall(function () {
+
+
+
+var getDevelopers = function () {
+  var deferred = Q.defer();
   People.list({}, function (err, people) {
-    console.log(people);
+    if (err) {
+      deferred.reject(new Error(err));
+    } else {
+      var developers = people.filter(function (data) {
+        return data.user.department.toLowerCase().indexOf('development') !== -1;
+      });
+      console.log(developers);
+      deferred.resolve(developers);
+    }
   });
-});
+  return deferred.promise;
+};
+
+Q.fcall(getDevelopers).then();
 
 /**
  * ExpressJS App

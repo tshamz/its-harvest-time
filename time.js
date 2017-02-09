@@ -19,7 +19,6 @@ var harvest = new Harvest({
 
 var TimeTracking = harvest.TimeTracking;
 var People = harvest.People;
-var Entries = [];
 var Developers = {};
 
 var getTimeEntry = function (developer, day) {
@@ -64,6 +63,7 @@ var getDevelopers = function () {
         return data.user.department.toLowerCase().indexOf('development') !== -1 && data.user.is_active;
       });
 
+      Developers = {};
       developers.forEach(function (developer) {
         Developers[developer.user.id] = {
           name: {
@@ -178,4 +178,11 @@ var startExpress = function () {
   return deferred.promise;
 };
 
-Q.fcall(getDevelopers).then(getTimeEntries).then(startExpress);
+var intervalCount = 0;
+setInterval(function () {
+  if (intervalCount === 0) {
+    Q.fcall(getDevelopers).then(getTimeEntries).then(startExpress);
+  } else {
+    Q.fcall(getDevelopers).then(getTimeEntries);
+  }
+}, 1000*60*10);

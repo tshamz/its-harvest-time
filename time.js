@@ -156,7 +156,7 @@ app.all('*', function(req, res, next){
     return next();
   }
   res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Methods', 'PUT');
+  res.set('Access-Control-Allow-Methods', 'GET');
   res.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
   if ('OPTIONS' == req.method) {
     return res.send(200);

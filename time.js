@@ -67,6 +67,8 @@ var getDevelopers = function () {
         return data.user.department.toLowerCase().indexOf('development') !== -1 && data.user.is_active;
       });
 
+      console.dir(developers);
+
       Developers = {};
       developers.forEach(function (developer) {
         Developers[developer.user.id] = {

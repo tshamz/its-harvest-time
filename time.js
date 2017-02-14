@@ -20,10 +20,11 @@ var harvest = new Harvest({
 var TimeTracking = harvest.TimeTracking;
 var People = harvest.People;
 var Developers = {};
+var CalculatedTimes = [];
 
 var calculatePeoplesTime = function () {
   var deferred = Q.defer();
-  var calculatedTimes = []
+  CalculatedTimes = [];
   for (var key in Developers) {
     var Developer = Developers[key];
 
@@ -35,7 +36,7 @@ var calculatePeoplesTime = function () {
         billableTime += entry.hours;
       }
     });
-    calculatedTimes.push({
+    CalculatedTimes.push({
       name: Developer.name.name,
       hours: {
         totalTime: totalTime,
@@ -191,7 +192,7 @@ var routes = {
     res.json(data);
   },
   getData: function(req, res) {
-    res.json({"data": Developers});
+    res.json({"data": CalculatedTimes});
   }
 };
 

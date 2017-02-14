@@ -36,6 +36,12 @@ var calculatePeoplesTime = function () {
       if (entry.is_billable) {
         billableTime += entry.hours;
       }
+      if (entry.hasOwnProperty('timer_started_at')) {
+        Developer.active.is_active = true;
+        if (entry.is_billable) {
+          Developer.active.is_billable = true;
+        }
+      }
     });
     CalculatedTimes.push({
       name: Developer.name.name,
@@ -78,20 +84,6 @@ var getTimeEntry = function (developer, day) {
       });
 
       Developer.entries = Developer.entries.concat(data.day_entries);
-
-      var is_today = day.getDay() === today.getDay();
-      console.log(Developer.name.name + ': ' + is_today);
-
-      if (day.getDay() === today.getDay()) {
-        Developer.entries.forEach(function (entry) {
-          if (entry.hasOwnProperty('timer_started_at')) {
-            Developer.active.is_active = true;
-            if (entry.is_billable) {
-              Developer.active.is_billable = true;
-            }
-          }
-        });
-      }
       deferred.resolve();
     }
   });

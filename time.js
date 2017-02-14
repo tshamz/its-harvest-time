@@ -79,7 +79,8 @@ var getTimeEntry = function (developer, day) {
 
       Developer.entries = Developer.entries.concat(data.day_entries);
 
-      console.log(Developer.name.name + ': ' + day.getDay() === today.getDay());
+      var is_today = day.getDay() === today.getDay();
+      console.log(Developer.name.name + ': ' + is_today);
 
       if (day.getDay() === today.getDay()) {
         Developer.entries.forEach(function (entry) {

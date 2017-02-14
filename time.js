@@ -44,6 +44,8 @@ var calculatePeoplesTime = function () {
       active: person.active
     });
   }
+  deferred.resolve();
+  return deferred.promise;
 };
 
 var getTimeEntry = function (developer, day) {
@@ -55,7 +57,7 @@ var getTimeEntry = function (developer, day) {
       console.log('err');
       deferred.reject(new Error(error));
     } else {
-      var developer = Developers[developer.user.id];
+      var Developer = Developers[developer.user.id];
       var projects = data.projects;
       var projectsMap = projects.map(function (project) {
         return project.id;
@@ -74,10 +76,10 @@ var getTimeEntry = function (developer, day) {
         });
       });
 
-      developer.entries = developer.entries.concat(data.day_entries);
+      Developer.entries = Developer.entries.concat(data.day_entries);
 
       if (day.getDay() === today.getDay()) {
-        developer.entries.forEach(function (entry) {
+        Developer.entries.forEach(function (entry) {
           if (entry.hasOwnProperty('timer_started_at')) {
             developer.active.is_active = true;
             if (entry.is_billable) {
@@ -191,29 +193,6 @@ var routes = {
   },
   getData: function(req, res) {
     res.json({"data": Developers});
-    // TimeTracking.daily({}, function(err, data) {
-    //   var entries = data.day_entries;
-    //   var projects = data.projects;
-    //   var lineItems = [];
-    //   entries.forEach(function(entry) {
-    //     var entryInformation = {
-    //       project: {
-    //         id: entry.project_id,
-    //         title: entry.project,
-    //         client: entry.client
-    //       },
-    //       task: {
-    //         id: entry.task_id,
-    //         title: entry.task,
-    //         note: entry.notes,
-    //         hours: entry.hours
-    //       },
-    //       billable: getBillableStatus(projects, entry)
-    //     };
-    //     lineItems.push(entryInformation);
-    //   });
-    //   res.json({"data": lineItems});
-    // });
   }
 };
 

@@ -25,18 +25,18 @@ var calculatePeoplesTime = function () {
   var deferred = Q.defer();
   var calculatedTimes = []
   for (var key in Developers) {
-    var developer = Developers[key];
+    var Developer = Developers[key];
 
     var totalTime = 0;
     var billableTime = 0;
-    developer.entries.forEach(function (entry) {
+    Developer.entries.forEach(function (entry) {
       totalTime += entry.hours;
       if (entry.is_billable) {
         billableTime += entry.hours;
       }
     });
     calculatedTimes.push({
-      name: developer.name.name,
+      name: Developer.name.name,
       hours: {
         totalTime: totalTime,
         billableTime: billableTime

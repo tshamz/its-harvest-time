@@ -25,7 +25,7 @@ var calculatePeoplesTime = function () {
   var deferred = Q.defer();
   var calculatedTimes = []
   for (var key in Developers) {
-    var developer = Developers[developer];
+    var developer = Developers[key];
 
     var totalTime = 0;
     var billableTime = 0;

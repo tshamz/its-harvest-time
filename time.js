@@ -26,7 +26,7 @@ var getTimeEntry = function (developer, day) {
   var today = new Date();
   TimeTracking.daily({date: day, of_user: developer.user.id}, function (err, data) {
 
-    console.log(data.projects[0].tasks);
+    // console.log(data.projects[0].tasks);
 
     if (err) {
       console.log('err');
@@ -70,7 +70,7 @@ var getDevelopers = function () {
         return data.user.department.toLowerCase().indexOf('development') !== -1 && data.user.is_active;
       });
 
-      // console.dir(developers);
+      console.dir(developers);
 
       Developers = {};
       developers.forEach(function (developer) {

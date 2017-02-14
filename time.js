@@ -79,7 +79,8 @@ var getTimeEntry = function (developer, day) {
 
       Developer.entries = Developer.entries.concat(data.day_entries);
 
-      console.log(day.getDay() === today.getDay());
+      console.log(Developer.name.name + ': ' + day.getDay() === today.getDay());
+
       if (day.getDay() === today.getDay()) {
         Developer.entries.forEach(function (entry) {
           if (entry.hasOwnProperty('timer_started_at')) {

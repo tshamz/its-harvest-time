@@ -26,7 +26,7 @@ var getTimeEntry = function (developer, day) {
   var today = new Date();
   TimeTracking.daily({date: day, of_user: developer.user.id}, function (err, data) {
 
-    console.dir(data.projects);
+    console.log(data.projects[0].tasks);
 
     if (err) {
       console.log('err');

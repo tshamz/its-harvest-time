@@ -25,6 +25,9 @@ var getTimeEntry = function (developer, day) {
   var deferred = Q.defer();
   var today = new Date();
   TimeTracking.daily({date: day, of_user: developer.user.id}, function (err, data) {
+
+    console.dir(data);
+
     if (err) {
       console.log('err');
       deferred.reject(new Error(error));
@@ -67,7 +70,7 @@ var getDevelopers = function () {
         return data.user.department.toLowerCase().indexOf('development') !== -1 && data.user.is_active;
       });
 
-      console.dir(developers);
+      // console.dir(developers);
 
       Developers = {};
       developers.forEach(function (developer) {

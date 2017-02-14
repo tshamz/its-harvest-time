@@ -41,7 +41,7 @@ var calculatePeoplesTime = function () {
         totalTime: totalTime,
         billableTime: billableTime
       },
-      active: person.active
+      active: Developer.active
     });
   }
   deferred.resolve();

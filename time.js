@@ -81,9 +81,9 @@ var getTimeEntry = function (developer, day) {
       if (day.getDay() === today.getDay()) {
         Developer.entries.forEach(function (entry) {
           if (entry.hasOwnProperty('timer_started_at')) {
-            developer.active.is_active = true;
+            Developer.active.is_active = true;
             if (entry.is_billable) {
-              developer.active.is_billable = true;
+              Developer.active.is_billable = true;
             }
           }
         });

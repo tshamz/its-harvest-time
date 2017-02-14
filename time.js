@@ -152,11 +152,16 @@ app.use(methodOverride());
  */
 
 app.all('*', function(req, res, next){
-  if (!req.get('Origin')) return next();
-  res.set('Access-Control-Allow-Origin', '*');
+  if (!req.get('Origin')) {
+    return next();
+  }
+  res.set('Access-Control-Allow-Origin', 'localhost');  // testing purposes only
+  res.set('Access-Control-Allow-Origin', 'http://dev.tylershambora.com');
   res.set('Access-Control-Allow-Methods', 'PUT');
   res.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
-  if ('OPTIONS' == req.method) return res.send(200);
+  if ('OPTIONS' == req.method) {
+    return res.send(200);
+  }
   next();
 });
 

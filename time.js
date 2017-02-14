@@ -24,6 +24,7 @@ var CalculatedTimes = [];
 
 var calculatePeoplesTime = function () {
   var deferred = Q.defer();
+
   CalculatedTimes = [];
   for (var key in Developers) {
     var Developer = Developers[key];
@@ -78,6 +79,7 @@ var getTimeEntry = function (developer, day) {
 
       Developer.entries = Developer.entries.concat(data.day_entries);
 
+      console.log(day.getDay() === today.getDay());
       if (day.getDay() === today.getDay()) {
         Developer.entries.forEach(function (entry) {
           if (entry.hasOwnProperty('timer_started_at')) {
@@ -119,8 +121,6 @@ var getDevelopers = function () {
       var developers = people.filter(function (data) {
         return data.user.department.toLowerCase().indexOf('development') !== -1 && data.user.is_active;
       });
-
-      // console.dir(developers);
 
       Developers = {};
       developers.forEach(function (developer) {

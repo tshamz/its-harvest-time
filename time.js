@@ -21,6 +21,31 @@ var TimeTracking = harvest.TimeTracking;
 var People = harvest.People;
 var Developers = {};
 
+var calculatePeoplesTime = function () {
+  var deferred = Q.defer();
+  var calculatedTimes = []
+  for (var key in Developers) {
+    var developer = Developers[developer];
+
+    var totalTime = 0;
+    var billableTime = 0;
+    developer.entries.forEach(function (entry) {
+      totalTime += entry.hours;
+      if (entry.is_billable) {
+        billableTime += entry.hours;
+      }
+    });
+    calculatedTimes.push({
+      name: developer.name.name,
+      hours: {
+        totalTime: totalTime,
+        billableTime: billableTime
+      },
+      active: person.active
+    });
+  }
+};
+
 var getTimeEntry = function (developer, day) {
   var deferred = Q.defer();
   var today = new Date();
@@ -30,6 +55,7 @@ var getTimeEntry = function (developer, day) {
       console.log('err');
       deferred.reject(new Error(error));
     } else {
+      var developer = Developers[developer.user.id];
       var projects = data.projects;
       var projectsMap = projects.map(function (project) {
         return project.id;
@@ -48,12 +74,16 @@ var getTimeEntry = function (developer, day) {
         });
       });
 
-      console.dir(data);
+      developer.entries = developer.entries.concat(data.day_entries);
 
-      Developers[developer.user.id].entries = Developers[developer.user.id].entries.concat(data.day_entries);
       if (day.getDay() === today.getDay()) {
-        Developers[developer.user.id].active = data.day_entries.some(function (entry) {
-          return entry.hasOwnProperty('timer_started_at');
+        developer.entries.forEach(function (entry) {
+          if (entry.hasOwnProperty('timer_started_at')) {
+            developer.active.is_active = true;
+            if (entry.is_billable) {
+              developer.active.is_billable = true;
+            }
+          }
         });
       }
       deferred.resolve();
@@ -99,7 +129,10 @@ var getDevelopers = function () {
             name: developer.user.first_name.toLowerCase() + ' ' + developer.user.last_name.toLowerCase()
           },
           entries: [],
-          active: false
+          active: {
+            is_active: false,
+            is_billable: false
+          }
         };
       });
       deferred.resolve(developers);
@@ -205,8 +238,8 @@ var startExpress = function () {
   return deferred.promise;
 };
 
-Q.fcall(getDevelopers).then(getTimeEntries).then(startExpress).done();
+Q.fcall(getDevelopers).then(getTimeEntries).then(calculatePeoplesTime).then(startExpress).done();
 
 setInterval(function () {
-  Q.fcall(getDevelopers).then(getTimeEntries).done();
+  Q.fcall(getDevelopers).then(getTimeEntries).then(calculatePeoplesTime).done();
 }, 1000*60);

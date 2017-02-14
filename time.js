@@ -44,8 +44,7 @@ var calculatePeoplesTime = function () {
       active: Developer.active
     });
   }
-  deferred.resolve();
-  return deferred.promise;
+  return deferred.resolve();
 };
 
 var getTimeEntry = function (developer, day) {

@@ -26,12 +26,30 @@ var getTimeEntry = function (developer, day) {
   var today = new Date();
   TimeTracking.daily({date: day, of_user: developer.user.id}, function (err, data) {
 
-    console.dir(data);
-
     if (err) {
       console.log('err');
       deferred.reject(new Error(error));
     } else {
+      var projects = data.projects;
+      var projectsMap = projects.map(function (project) {
+        return project.id;
+      });
+
+      data.day_entries.forEach(function (entry, index) {
+        var projectId = parseInt(entry.project_id, 10);
+        var projectIndex = projectsMap.indexOf(projectId);
+        var project = projects[projectIndex];
+        var taskId = parseInt(entry.task_id, 10);
+
+        project.tasks.forEach(function (task) {
+          if (task.id === taskId) {
+            data.day_entries[index].is_billable = task.billable;
+          }
+        });
+      });
+
+      console.dir(data);
+
       Developers[developer.user.id].entries = Developers[developer.user.id].entries.concat(data.day_entries);
       if (day.getDay() === today.getDay()) {
         Developers[developer.user.id].active = data.day_entries.some(function (entry) {

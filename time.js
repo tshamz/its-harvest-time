@@ -76,11 +76,15 @@ var getTimeEntry = function (developer, day) {
         var project = projects[projectIndex];
         var taskId = parseInt(entry.task_id, 10);
 
-        project.tasks.forEach(function (task) {
-          if (task.id === taskId) {
-            data.day_entries[index].is_billable = task.billable;
-          }
-        });
+        if (project.hasOwnProperty('tasks') && Array.isArray(project.tasks)) {
+          project.tasks.forEach(function (task) {
+            if (task.id === taskId) {
+              data.day_entries[index].is_billable = task.billable;
+            }
+          });
+        } else {
+          console.log(project);
+        }
       });
 
       Developer.entries = Developer.entries.concat(data.day_entries);

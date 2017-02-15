@@ -76,6 +76,13 @@ var getTimeEntry = function (developer, day) {
         var project = projects[projectIndex];
         var taskId = parseInt(entry.task_id, 10);
 
+        console.log(projectsMap);
+
+        console.log(projectId);
+        console.log(projectIndex);
+        console.log(project);
+        console.log(taskId);
+
         if (project.hasOwnProperty('tasks') && Array.isArray(project.tasks)) {
           project.tasks.forEach(function (task) {
             if (task.id === taskId) {

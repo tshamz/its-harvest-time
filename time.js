@@ -76,7 +76,7 @@ var getTimeEntry = function (developer, day) {
         var project = projects[projectIndex];
         var taskId = parseInt(entry.task_id, 10);
 
-        if (project !== -1)) {
+        if (project !== -1) {
           project.tasks.forEach(function (task) {
             if (task.id === taskId) {
               data.day_entries[index].is_billable = task.billable;

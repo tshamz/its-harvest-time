@@ -76,21 +76,14 @@ var getTimeEntry = function (developer, day) {
         var project = projects[projectIndex];
         var taskId = parseInt(entry.task_id, 10);
 
-        console.log(projectsMap);
-
-        console.log(projectId);
-        console.log(projectIndex);
-        console.log(project);
-        console.log(taskId);
-
-        if (project.hasOwnProperty('tasks') && Array.isArray(project.tasks)) {
+        if (project !== -1)) {
           project.tasks.forEach(function (task) {
             if (task.id === taskId) {
               data.day_entries[index].is_billable = task.billable;
             }
           });
         } else {
-          console.log(project);
+          console.log(entry);
         }
       });
 

@@ -83,6 +83,7 @@ var getTimeEntry = function (developer, day) {
             }
           });
         } else {
+          data.day_entries[index].is_billable = false;
           console.log(entry);
         }
       });

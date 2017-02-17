@@ -3,7 +3,7 @@ var http              = require('http');
 var path              = require('path');
 var moment            = require('moment');
 var express           = require('express');
-var mongodb           = require("mongodb");
+var mongodb           = require('mongodb');
 var Harvest           = require('harvest');
 var json2csv          = require('json2csv');
 var bodyParser        = require('body-parser');
@@ -64,7 +64,7 @@ var getTimeEntry = function (developer, day) {
   var deferred = Q.defer();
   var today = new Date();
   TimeTracking.daily({date: day, of_user: developer.user.id}, function (err, data) {
-
+    console.log(data);
     if (err) {
       console.log(err);
       deferred.reject(new Error(error));
@@ -192,8 +192,8 @@ app.all('*', function(req, res, next){
 
 // Generic error handler used by all endpoints.
 var handleError = function (res, reason, message, code) {
-  console.log("ERROR: " + reason);
-  res.status(code || 500).json({"error": message});
+  console.log('ERROR: ' + reason);
+  res.status(code || 500).json({'error': message});
 };
 
 var routes = {
@@ -205,7 +205,7 @@ var routes = {
     res.json(data);
   },
   getTime: function(req, res) {
-    res.json({"data": CalculatedTimes});
+    res.json({'data': CalculatedTimes});
   },
   getCSV: function(req, res) {
     res.attachment('exported-harvest-times.csv');
@@ -229,7 +229,7 @@ app.use(function(req, res, next){  // if route not found, respond with 404
 var startExpress = function () {
   var deferred = Q.defer();
   http.createServer(app).listen(app.get('port'), function() {
-    console.log("Express server listening on port " + app.get('port'));
+    console.log('Express server listening on port ' + app.get('port'));
     deferred.resolve();
   });
   return deferred.promise;
@@ -250,7 +250,7 @@ var connectToDatabase = function () {
       deferred.reject(new Error(error));
     }
     db = database;
-    console.log("Database connection ready");
+    console.log('Database connection ready');
     deferred.resolve();
   });
   return deferred.promise;

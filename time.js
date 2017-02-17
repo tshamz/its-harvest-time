@@ -117,8 +117,8 @@ var getTimeEntries = function(developers) {
 
 var getDevelopers = function () {
   var deferred = Q.defer();
-  console.log(People);
   People.list({}, function (err, people) {
+    console.log(people);
     if (err) {
       console.log(err);
       deferred.reject(new Error(err));

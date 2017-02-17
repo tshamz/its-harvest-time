@@ -1,9 +1,10 @@
 var Q                 = require('q');
 var http              = require('http');
 var path              = require('path');
-var Harvest           = require('harvest');
 var moment            = require('moment');
 var express           = require('express');
+var Harvest           = require('harvest');
+var json2csv          = require('json2csv');
 var bodyParser        = require('body-parser');
 var methodOverride    = require('method-override');
 
@@ -173,18 +174,6 @@ app.all('*', function(req, res, next){
  * ROUTES
  */
 
-var getBillableStatus = function(projects, entry) {
-  for (var i = 0; i < projects.length; i++) {
-    if (projects[i].id == entry.project_id) {
-      for (var n = 0; n < projects[i].tasks.length; n++) {
-        if (projects[i].tasks[n].id == entry.task_id) {
-          return projects[i].tasks[n].billable;
-        }
-      }
-    }
-  }
-};
-
 var routes = {
   index: function(req, res) {
     console.log("main route requested");
@@ -194,14 +183,20 @@ var routes = {
     };
     res.json(data);
   },
-  getData: function(req, res) {
+  getTime: function(req, res) {
     res.json({"data": CalculatedTimes});
+  },
+  getCSV: function(req, res) {
+    var data = json2csv({data: CalculatedTimes, fields: ['name', 'hours.totalTime', 'hours.billableTime'], fieldNames: ['Name', 'Total Time', 'Billable Time']});
+    res.attachment('exported-harvest-times.csv');
+    res.status(200).send(data);
   }
 };
 
 // API routes
 app.get('/', routes.index);
-app.get('/api/time', routes.getData);
+app.get('/api/time', routes.getTime);
+app.get('/api/csv', routes.getCSV);
 
 app.use(function(req, res, next){  // if route not found, respond with 404
   var jsonData = {

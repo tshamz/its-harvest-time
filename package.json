@@ -13,6 +13,7 @@
     "express": "^4.13.3",
     "geocoder": "^0.2.2",
     "harvest": "^0.1.0",
+    "json2csv": "^3.7.3",
     "method-override": "^2.3.5",
     "moment": "^2.10.6",
     "q": "^1.4.1",

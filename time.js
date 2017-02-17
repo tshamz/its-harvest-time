@@ -148,6 +148,27 @@ var getDevelopers = function () {
   return deferred.promise;
 };
 
+var writeToDatabase = function (entry) {
+  var deferred = Q.defer();
+  var collection = db.get('time');
+
+
+
+  collection.insert(entry, function(err, doc) {
+    if (err) {
+      console.log(err);
+      deferred.reject(new Error(err));
+      res.status(500).send("DB write failed");
+    } else {
+      // Return the added score
+      deferred.resolve(developers);
+      res.json(doc);
+    }
+  });
+
+  return deferred.promise;
+};
+
 var buildCSV = function () {
   var fields = ['names.first', 'hours.totalTime', 'hours.billableTime'];
   var fieldNames = ['Name', 'Total Time', 'Billable Time'];
@@ -189,12 +210,6 @@ app.all('*', function(req, res, next){
   }
   next();
 });
-
-// Generic error handler used by all endpoints.
-var handleError = function (res, reason, message, code) {
-  console.log('ERROR: ' + reason);
-  res.status(code || 500).json({'error': message});
-};
 
 var routes = {
   index: function(req, res) {

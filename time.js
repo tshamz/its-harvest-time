@@ -47,7 +47,7 @@ var calculatePeoplesTime = function () {
     CalculatedTimes.push({
       name: Developer.name.name,
       names: {
-        first: Developer.name.first,
+        first: Developer.name.first.charAt(0).toUpperCase() + Developer.name.first.slice(1),
         last: Developer.name.last
       },
       hours: {
@@ -151,7 +151,19 @@ var buildCSV = function () {
   var fields = ['names.first', 'hours.totalTime', 'hours.billableTime'];
   var fieldNames = ['Name', 'Total Time', 'Billable Time'];
 
-  return json2csv({data: CalculatedTimes, fields: fields, fieldNames: fieldNames});
+  var sortedData = CalculatedTimes.sort(function (a, b) {
+    var nameA = a.names.first.toUpperCase();
+    var nameB = b.names.first.toUpperCase();
+    if (nameA < nameB) {
+      return -1;
+    }
+    if (nameA > nameB) {
+      return 1;
+    }
+    return 0;
+  });
+
+  return json2csv({data: sortedData, fields: fields, fieldNames: fieldNames});
 };
 
 /**

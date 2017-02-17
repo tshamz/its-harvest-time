@@ -3,6 +3,7 @@ var http              = require('http');
 var path              = require('path');
 var moment            = require('moment');
 var express           = require('express');
+var mongodb           = require("mongodb");
 var Harvest           = require('harvest');
 var json2csv          = require('json2csv');
 var bodyParser        = require('body-parser');
@@ -45,10 +46,9 @@ var calculatePeoplesTime = function () {
       }
     });
     CalculatedTimes.push({
-      name: Developer.name.name,
-      names: {
+      name: {
         first: Developer.name.first.charAt(0).toUpperCase() + Developer.name.first.slice(1),
-        last: Developer.name.last
+        last: Developer.name.last.charAt(0).toUpperCase() + Developer.name.last.slice(1)
       },
       hours: {
         totalTime: totalTime,
@@ -66,7 +66,7 @@ var getTimeEntry = function (developer, day) {
   TimeTracking.daily({date: day, of_user: developer.user.id}, function (err, data) {
 
     if (err) {
-      console.log('err');
+      console.log(err);
       deferred.reject(new Error(error));
     } else {
       var Developer = Developers[developer.user.id];
@@ -119,6 +119,7 @@ var getDevelopers = function () {
   var deferred = Q.defer();
   People.list({}, function (err, people) {
     if (err) {
+      console.log(err);
       deferred.reject(new Error(err));
     } else {
 
@@ -176,10 +177,6 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(methodOverride());
 
-/**
- * CORS support for AJAX requests
- */
-
 app.all('*', function(req, res, next){
   if (!req.get('Origin')) {
     return next();
@@ -193,13 +190,14 @@ app.all('*', function(req, res, next){
   next();
 });
 
-/**
- * ROUTES
- */
+// Generic error handler used by all endpoints.
+var handleError = function (res, reason, message, code) {
+  console.log("ERROR: " + reason);
+  res.status(code || 500).json({"error": message});
+};
 
 var routes = {
   index: function(req, res) {
-    console.log("main route requested");
     var data = {
       status: 'OK',
       message: 'Time to get harvesting!'
@@ -210,7 +208,6 @@ var routes = {
     res.json({"data": CalculatedTimes});
   },
   getCSV: function(req, res) {
-
     res.attachment('exported-harvest-times.csv');
     res.status(200).send(buildCSV());
   }
@@ -231,15 +228,48 @@ app.use(function(req, res, next){  // if route not found, respond with 404
 
 var startExpress = function () {
   var deferred = Q.defer();
-  http.createServer(app).listen(app.get('port'), function() {  // create NodeJS HTTP server using 'app'
+  http.createServer(app).listen(app.get('port'), function() {
     console.log("Express server listening on port " + app.get('port'));
     deferred.resolve();
   });
   return deferred.promise;
 };
 
-Q.fcall(getDevelopers).then(getTimeEntries).then(calculatePeoplesTime).then(startExpress).done();
+/**
+ * MongoDB
+ */
+
+var db;
+var ObjectID = mongodb.ObjectID;
+
+var connectToDatabase = function () {
+  var deferred = Q.defer();
+  mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
+    if (err) {
+      console.log(err);
+      deferred.reject(new Error(error));
+    }
+    db = database;
+    console.log("Database connection ready");
+    deferred.resolve();
+  });
+  return deferred.promise;
+};
+
+/**
+ * Promise Chains
+ */
+
+Q.fcall(getDevelopers)
+ .then(getTimeEntries)
+ .then(calculatePeoplesTime)
+ .then(connectToDatabase)
+ .then(startExpress)
+ .done();
 
 setInterval(function () {
-  Q.fcall(getDevelopers).then(getTimeEntries).then(calculatePeoplesTime).done();
-}, 1000*60);
+  Q.fcall(getDevelopers)
+   .then(getTimeEntries)
+   .then(calculatePeoplesTime)
+   .done();
+}, 1000 * 60);

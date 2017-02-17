@@ -16,6 +16,7 @@
     "json2csv": "^3.7.3",
     "method-override": "^2.3.5",
     "moment": "^2.10.6",
+    "mongodb": "^2.2.24",
     "q": "^1.4.1",
     "request": "^2.64.0"
   },

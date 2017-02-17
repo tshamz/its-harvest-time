@@ -64,7 +64,7 @@ var getTimeEntry = function (developer, day) {
   var deferred = Q.defer();
   var today = new Date();
   TimeTracking.daily({date: day, of_user: developer.user.id}, function (err, data) {
-    console.log(data);
+
     if (err) {
       console.log(err);
       deferred.reject(new Error(error));

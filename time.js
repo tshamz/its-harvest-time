@@ -46,6 +46,10 @@ var calculatePeoplesTime = function () {
     });
     CalculatedTimes.push({
       name: Developer.name.name,
+      names: {
+        first: Developer.name.first,
+        last: Developer.name.last
+      },
       hours: {
         totalTime: totalTime,
         billableTime: billableTime
@@ -143,6 +147,13 @@ var getDevelopers = function () {
   return deferred.promise;
 };
 
+var buildCSV = function () {
+  var fields = ['names.first', 'hours.totalTime', 'hours.billableTime'];
+  var fieldNames = ['Name', 'Total Time', 'Billable Time'];
+
+  return json2csv({data: CalculatedTimes, fields: fields, fieldNames: fieldNames});
+};
+
 /**
  * ExpressJS App
  */
@@ -187,9 +198,9 @@ var routes = {
     res.json({"data": CalculatedTimes});
   },
   getCSV: function(req, res) {
-    var data = json2csv({data: CalculatedTimes, fields: ['name', 'hours.totalTime', 'hours.billableTime'], fieldNames: ['Name', 'Total Time', 'Billable Time']});
+
     res.attachment('exported-harvest-times.csv');
-    res.status(200).send(data);
+    res.status(200).send(buildCSV());
   }
 };
 

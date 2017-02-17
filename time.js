@@ -85,7 +85,7 @@ var getTimeEntry = function (developer, day) {
           });
         } else {
           data.day_entries[index].is_billable = false;
-          console.log(Developer.name.name);
+          console.log(`Archieved Project: ${Developer.name.name} - ${entry.project}`);
         }
       });
 

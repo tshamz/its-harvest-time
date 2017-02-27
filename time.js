@@ -155,7 +155,7 @@ var getDevelopers = function () {
         collection.findAndModify({
           query: { name: fullName },
           update: {
-            $setOnInsert: { name: fullName }
+            $setOnInsert: { dates: {} }
           },
           new: true,   // return new doc if one is upserted
           upsert: true // insert the document if it does not exist

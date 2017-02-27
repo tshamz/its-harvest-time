@@ -152,20 +152,14 @@ var getDevelopers = function () {
           }
         };
 
-        collection.findAndModify({
-          query: { name: fullName },
-          update: {
-            $setOnInsert: { dates: {} }
-          },
-          new: true,   // return new doc if one is upserted
-          upsert: true // insert the document if it does not exist
-        }, function (err, result) {
+        collection.find({ name: fullName }).toArray(function (err, result) {
           if (err) {
             console.log(err);
           } else {
             console.log(result);
           }
-        })
+        });
+
 
 
       });

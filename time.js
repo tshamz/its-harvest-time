@@ -274,7 +274,7 @@ var routes = {
 app.get('/', routes.index);
 app.get('/api/time', routes.getTime);
 app.get('/api/csv', routes.getCSV);
-app.get('/api/write', routes.getCSV);
+app.get('/api/write', routes.write);
 
 app.use(function(req, res, next){  // if route not found, respond with 404
   var jsonData = {

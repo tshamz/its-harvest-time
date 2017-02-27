@@ -135,12 +135,15 @@ var getDevelopers = function () {
 
       Developers = {};
 
+      var collection = db.collection('time');
+
       developers.forEach(function (developer) {
+        var fullName = developer.user.first_name.toLowerCase() + ' ' + developer.user.last_name.toLowerCase();
         Developers[developer.user.id] = {
           name: {
             first: developer.user.first_name.toLowerCase(),
             last: developer.user.last_name.toLowerCase(),
-            name: developer.user.first_name.toLowerCase() + ' ' + developer.user.last_name.toLowerCase()
+            name: fullName
           },
           entries: [],
           active: {
@@ -148,6 +151,23 @@ var getDevelopers = function () {
             is_billable: false
           }
         };
+
+        collection.findAndModify({
+          query: { name: fullName },
+          update: {
+            $setOnInsert: { name: fullName }
+          },
+          new: true,   // return new doc if one is upserted
+          upsert: true // insert the document if it does not exist
+        }, function (err, result) {
+          if (err) {
+            console.log(err);
+          } else {
+            console.log(result);
+          }
+        })
+
+
       });
       deferred.resolve(developers);
     }
@@ -187,11 +207,11 @@ var connectToDatabase = function () {
     if (err) {
       console.log(err);
       deferred.reject(new Error(error));
+    } else {
+      db = database;
+      console.log('Database connection ready');
+      deferred.resolve();
     }
-
-    db = database;
-    console.log('Database connection ready');
-    deferred.resolve();
   });
   return deferred.promise;
 };
@@ -199,7 +219,7 @@ var connectToDatabase = function () {
 var writeToDatabase = function (entries) {  // expects array of objects/documents
   var deferred = Q.defer();
 
-  var collection = db.get('time');
+  var collection = db.collection('time');
   collection.insertMany(entries, function(err, result) {
     if (err) {
       console.log(err);
@@ -298,11 +318,12 @@ var startExpress = function () {
  * Promise Chains
  */
 
-Q.fcall(getDevelopers)
+// Q.fcall(getDevelopers)
+Q.fcall(connectToDatabase)
+ .then(startExpress)
+ .then(getDevelopers)
  .then(getTimeEntries)
  .then(calculatePeoplesTime)
- .then(connectToDatabase)
- .then(startExpress)
  .done();
 
 setInterval(function () {

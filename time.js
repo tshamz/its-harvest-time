@@ -156,7 +156,18 @@ var getDevelopers = function () {
           if (err) {
             console.log(err);
           } else {
-            console.log(result);
+            if (result.length === 0) {
+              collection.insert({
+                name: fullName,
+                dates: {}
+              }, function (err, result) {
+                if (err) {
+                  console.log(err);
+                } else {
+                  console.log(result);
+                }
+              });
+            }
           }
         });
 

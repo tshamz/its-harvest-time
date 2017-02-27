@@ -125,7 +125,11 @@ var getDevelopers = function () {
 
       var developers = people.filter(function (data) {
         console.log(data);
-        return data.user.department.toLowerCase().indexOf('development') !== -1 && data.user.is_active;
+        var isDeveloper = false;
+        if (data.user.hasOwnProperty('department')) {
+          isDeveloper = data.user.department.toLowerCase().indexOf('development') !== -1;
+        }
+        return isDeveloper && data.user.is_active;
       });
 
       Developers = {};

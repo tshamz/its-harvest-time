@@ -125,7 +125,6 @@ var getDevelopers = function () {
     } else {
 
       var developers = people.filter(function (data) {
-        console.log(data);
         var isDeveloper = false;
         var department = data.user.department;
         if (department && department !== null) {
@@ -156,27 +155,6 @@ var getDevelopers = function () {
   return deferred.promise;
 };
 
-var writeToDatabase = function (entry) {
-  var deferred = Q.defer();
-  var collection = db.get('time');
-
-
-
-  collection.insert(entry, function(err, doc) {
-    if (err) {
-      console.log(err);
-      deferred.reject(new Error(err));
-      res.status(500).send("DB write failed");
-    } else {
-      // Return the added score
-      deferred.resolve(developers);
-      res.json(doc);
-    }
-  });
-
-  return deferred.promise;
-};
-
 var buildCSV = function () {
   var fields = ['names.first', 'hours.totalTime', 'hours.billableTime'];
   var fieldNames = ['Name', 'Total Time', 'Billable Time'];
@@ -195,6 +173,48 @@ var buildCSV = function () {
 
   return json2csv({data: sortedData, fields: fields, fieldNames: fieldNames});
 };
+
+/**
+ * MongoDB
+ */
+
+var db;
+var ObjectID = mongodb.ObjectID;
+
+var connectToDatabase = function () {
+  var deferred = Q.defer();
+  mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
+    if (err) {
+      console.log(err);
+      deferred.reject(new Error(error));
+    }
+
+    db = database;
+    console.log('Database connection ready');
+    deferred.resolve();
+  });
+  return deferred.promise;
+};
+
+var writeToDatabase = function (entries) {  // expects array of objects/documents
+  var deferred = Q.defer();
+
+  var collection = db.get('time');
+  collection.insertMany(entries, function(err, result) {
+    if (err) {
+      console.log(err);
+      deferred.reject(new Error(err));
+      res.status(500).send("DB write failed");
+    } else {
+      // Return the added score
+      deferred.resolve(developers);
+      res.json(result);
+    }
+  });
+
+  return deferred.promise;
+};
+
 
 /**
  * ExpressJS App
@@ -233,13 +253,28 @@ var routes = {
   getCSV: function(req, res) {
     res.attachment('exported-harvest-times.csv');
     res.status(200).send(buildCSV());
-  }
+  },
+  write: function (req, res) {
+    var collection = db.get('time');
+    collection.insertMany(CalculatedTimes, function(err, result) {
+      if (err) {
+        console.log(err);
+        // deferred.reject(new Error(err));
+        res.status(500).send("DB write failed");
+      } else {
+        // Return the added score
+        // deferred.resolve(developers);
+        res.json(result);
+      }
+    });
+  },
 };
 
 // API routes
 app.get('/', routes.index);
 app.get('/api/time', routes.getTime);
 app.get('/api/csv', routes.getCSV);
+app.get('/api/write', routes.getCSV);
 
 app.use(function(req, res, next){  // if route not found, respond with 404
   var jsonData = {
@@ -258,26 +293,6 @@ var startExpress = function () {
   return deferred.promise;
 };
 
-/**
- * MongoDB
- */
-
-var db;
-var ObjectID = mongodb.ObjectID;
-
-var connectToDatabase = function () {
-  var deferred = Q.defer();
-  mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
-    if (err) {
-      console.log(err);
-      deferred.reject(new Error(error));
-    }
-    db = database;
-    console.log('Database connection ready');
-    deferred.resolve();
-  });
-  return deferred.promise;
-};
 
 /**
  * Promise Chains

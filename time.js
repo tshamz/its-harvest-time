@@ -117,6 +117,7 @@ var getTimeEntries = function(developers) {
 
 var getDevelopers = function () {
   var deferred = Q.defer();
+
   People.list({}, function (err, people) {
     if (err) {
       console.log(err);
@@ -126,13 +127,15 @@ var getDevelopers = function () {
       var developers = people.filter(function (data) {
         console.log(data);
         var isDeveloper = false;
-        if (data.user.hasOwnProperty('department')) {
+        var department = data.user.department;
+        if (department && department !== null) {
           isDeveloper = data.user.department.toLowerCase().indexOf('development') !== -1;
         }
         return isDeveloper && data.user.is_active;
       });
 
       Developers = {};
+
       developers.forEach(function (developer) {
         Developers[developer.user.id] = {
           name: {

@@ -124,6 +124,7 @@ var getDevelopers = function () {
     } else {
 
       var developers = people.filter(function (data) {
+        console.log(data);
         return data.user.department.toLowerCase().indexOf('development') !== -1 && data.user.is_active;
       });
 

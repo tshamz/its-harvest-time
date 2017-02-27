@@ -255,7 +255,7 @@ var routes = {
     res.status(200).send(buildCSV());
   },
   write: function (req, res) {
-    var collection = db.get('time');
+    var collection = db.collection('time');
     collection.insertMany(CalculatedTimes, function(err, result) {
       if (err) {
         console.log(err);

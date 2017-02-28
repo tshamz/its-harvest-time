@@ -23,5 +23,10 @@
   "engines": {
     "node": "4.0.x",
     "npm": "2.2.x"
+  },
+  "devDependencies": {
+    "chalk": "^1.1.3",
+    "dotenv": "^4.0.0",
+    "table": "^4.0.1"
   }
 }

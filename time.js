@@ -1,36 +1,47 @@
-var Q                 = require('q');
-var http              = require('http');
-var path              = require('path');
-var moment            = require('moment');
-var express           = require('express');
-var mongodb           = require('mongodb');
-var Harvest           = require('harvest');
-var json2csv          = require('json2csv');
-var bodyParser        = require('body-parser');
-var methodOverride    = require('method-override');
-
 /**
  * Harvest Integration
  */
 
-var harvest = new Harvest({
-  subdomain: process.env.subdomain,
-  email: process.env.email,
-  password: process.env.password
-});
+const harvest = require('./harvest/harvest.js');
 
-var TimeTracking = harvest.TimeTracking;
-var People = harvest.People;
-var Developers = {};
-var CalculatedTimes = [];
+/**
+ * ExpressJS App
+ */
+
+const express = require('./app/app.js');
+const startExpress = function () {
+  let deferred = Q.defer();
+  express.start(deferred);
+  return deferred.promise;
+};
+
+/**
+ * MongoDB
+ */
+
+const mongo = require('./database/database.js');
+const startMongo = function () {
+  let deferred = Q.defer();
+  mongo.start(deferred);
+  return deferred.promise;
+};
+
+/**
+ * Other Stuff
+ */
+
+const Q = require('q');
+const moment = require('moment');
+const json2csv = require('json2csv');
+
+let Developers = {};
+let CalculatedTimes = [];
 
 var calculatePeoplesTime = function () {
   var deferred = Q.defer();
-
   CalculatedTimes = [];
   for (var key in Developers) {
     var Developer = Developers[key];
-
     var totalTime = 0;
     var billableTime = 0;
     Developer.entries.forEach(function (entry) {
@@ -63,8 +74,7 @@ var calculatePeoplesTime = function () {
 var getTimeEntry = function (developer, day) {
   var deferred = Q.defer();
   var today = new Date();
-  TimeTracking.daily({date: day, of_user: developer.user.id}, function (err, data) {
-
+  harvest.TimeTracking.daily({date: day, of_user: developer.user.id}, function (err, data) {
     if (err) {
       console.log(err);
       deferred.reject(new Error(error));
@@ -74,13 +84,11 @@ var getTimeEntry = function (developer, day) {
       var projectsMap = projects.map(function (project) {
         return project.id;
       });
-
       data.day_entries.forEach(function (entry, index) {
         var projectId = parseInt(entry.project_id, 10);
         var projectIndex = projectsMap.indexOf(projectId);
         var project = projects[projectIndex];
         var taskId = parseInt(entry.task_id, 10);
-
         if (projectIndex !== -1) {
           project.tasks.forEach(function (task) {
             if (task.id === taskId) {
@@ -92,7 +100,6 @@ var getTimeEntry = function (developer, day) {
           console.log(`Archieved Project: ${Developer.name.name} - ${entry.project}`);
         }
       });
-
       Developer.entries = Developer.entries.concat(data.day_entries);
       deferred.resolve();
     }
@@ -117,13 +124,12 @@ var getTimeEntries = function(developers) {
 
 var getDevelopers = function () {
   var deferred = Q.defer();
-
-  People.list({}, function (err, people) {
+  harvest.People.list({}, function (err, people) {
     if (err) {
       console.log(err);
       deferred.reject(new Error(err));
     } else {
-
+      Developers = {};
       var developers = people.filter(function (data) {
         var isDeveloper = false;
         var department = data.user.department;
@@ -132,11 +138,6 @@ var getDevelopers = function () {
         }
         return isDeveloper && data.user.is_active;
       });
-
-      Developers = {};
-
-      var collection = db.collection('time');
-
       developers.forEach(function (developer) {
         var fullName = developer.user.first_name.toLowerCase() + ' ' + developer.user.last_name.toLowerCase();
         Developers[developer.user.id] = {
@@ -151,31 +152,8 @@ var getDevelopers = function () {
             is_billable: false
           }
         };
-
-        collection.find({ name: fullName }).toArray(function (err, result) {
-          if (err) {
-            console.log(err);
-          } else {
-            if (result.length === 0) {
-              collection.insert({
-                name: fullName,
-                dates: {}
-              }, function (err, result) {
-                if (err) {
-                  console.log(err);
-                } else {
-                  console.log(result);
-                }
-              });
-            }
-          }
-        });
       });
-
-
       deferred.resolve(developers);
-
-
     }
   });
   return deferred.promise;
@@ -184,7 +162,6 @@ var getDevelopers = function () {
 var buildCSV = function () {
   var fields = ['names.first', 'hours.totalTime', 'hours.billableTime'];
   var fieldNames = ['Name', 'Total Time', 'Billable Time'];
-
   var sortedData = CalculatedTimes.sort(function (a, b) {
     var nameA = a.names.first.toUpperCase();
     var nameB = b.names.first.toUpperCase();
@@ -196,172 +173,28 @@ var buildCSV = function () {
     }
     return 0;
   });
-
   return json2csv({data: sortedData, fields: fields, fieldNames: fieldNames});
 };
 
 /**
- * MongoDB
- */
-
-var db;
-var ObjectID = mongodb.ObjectID;
-
-var connectToDatabase = function () {
-  var deferred = Q.defer();
-  mongodb.MongoClient.connect(process.env.MONGODB_URI, function (err, database) {
-    if (err) {
-      console.log(err);
-      deferred.reject(new Error(error));
-    } else {
-      db = database;
-      console.log('Database connection ready');
-      deferred.resolve();
-    }
-  });
-  return deferred.promise;
-};
-
-var writeToDatabase = function (entries) {  // expects array of objects/documents
-  var deferred = Q.defer();
-
-  var collection = db.collection('time');
-  collection.insertMany(entries, function(err, result) {
-    if (err) {
-      console.log(err);
-      deferred.reject(new Error(err));
-      res.status(500).send("DB write failed");
-    } else {
-      // Return the added score
-      deferred.resolve(developers);
-      res.json(result);
-    }
-  });
-
-  return deferred.promise;
-};
-
-
-/**
- * ExpressJS App
- */
-
-var app = express();
-app.set('port', process.env.PORT || 5000);
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(methodOverride());
-
-app.all('*', function(req, res, next){
-  if (!req.get('Origin')) {
-    return next();
-  }
-  res.set('Access-Control-Allow-Origin', '*');
-  res.set('Access-Control-Allow-Methods', 'GET');
-  res.set('Access-Control-Allow-Headers', 'X-Requested-With, Content-Type');
-  if ('OPTIONS' == req.method) {
-    return res.send(200);
-  }
-  next();
-});
-
-var routes = {
-  index: function(req, res) {
-    var data = {
-      status: 'OK',
-      message: 'Time to get harvesting!'
-    };
-    res.json(data);
-  },
-  getTime: function(req, res) {
-    res.json({'data': CalculatedTimes});
-  },
-  getCSV: function(req, res) {
-    res.attachment('exported-harvest-times.csv');
-    res.status(200).send(buildCSV());
-  },
-  write: function (req, res) {
-    var collection = db.collection('time');
-    collection.insertMany(CalculatedTimes, function(err, result) {
-      if (err) {
-        console.log(err);
-        // deferred.reject(new Error(err));
-        res.status(500).send("DB write failed");
-      } else {
-        // Return the added score
-        // deferred.resolve(developers);
-        res.json(result);
-      }
-    });
-  },
-};
-
-// API routes
-app.get('/', routes.index);
-app.get('/api/time', routes.getTime);
-app.get('/api/csv', routes.getCSV);
-app.get('/api/write', routes.write);
-
-app.use(function(req, res, next){  // if route not found, respond with 404
-  var jsonData = {
-    status: 'ERROR',
-    message: 'Sorry, we cannot find the requested URI'
-  };
-  res.status(404).send(jsonData);  // set status as 404 and respond with data
-});
-
-var startExpress = function () {
-  var deferred = Q.defer();
-  http.createServer(app).listen(app.get('port'), function() {
-    console.log('Express server listening on port ' + app.get('port'));
-    deferred.resolve();
-  });
-  return deferred.promise;
-};
-
-
-/**
- * Promise Chains
+ * Init
  */
 
 // Q.fcall(getDevelopers)
-Q.fcall(connectToDatabase)
+Q.fcall(startMongo)
  .then(startExpress)
  .then(getDevelopers)
  .then(getTimeEntries)
  .then(calculatePeoplesTime)
  .done();
 
+ /**
+  * Timer
+  */
+
 setInterval(function () {
   Q.fcall(getDevelopers)
    .then(getTimeEntries)
    .then(calculatePeoplesTime)
    .done();
-}, 1000 * 60);
-
-
-
-// {
-//   "name": "tyler shambora",
-//   "dates": {
-//     "2017": {
-//       "january": [{
-//         "totalTime": 18.75,
-//         "billableTime": 6.25
-//       }, {
-//         "totalTime": 18.75,
-//         "billableTime": 6.25
-//       }],
-//       "february": [{
-//         "totalTime": 18.75,
-//         "billableTime": 6.25
-//       }, {
-//         "totalTime": 18.75,
-//         "billableTime": 6.25
-//       }]
-//     }
-//   }
-// }
-
-
-// for_day: '2017-02-13',
+}, 1000 * 60);  // 60 seconds

@@ -170,11 +170,12 @@ var getDevelopers = function () {
             }
           }
         });
-
-
-
       });
+
+
       deferred.resolve(developers);
+
+
     }
   });
   return deferred.promise;
@@ -337,3 +338,30 @@ setInterval(function () {
    .then(calculatePeoplesTime)
    .done();
 }, 1000 * 60);
+
+
+
+// {
+//   "name": "tyler shambora",
+//   "dates": {
+//     "2017": {
+//       "january": [{
+//         "totalTime": 18.75,
+//         "billableTime": 6.25
+//       }, {
+//         "totalTime": 18.75,
+//         "billableTime": 6.25
+//       }],
+//       "february": [{
+//         "totalTime": 18.75,
+//         "billableTime": 6.25
+//       }, {
+//         "totalTime": 18.75,
+//         "billableTime": 6.25
+//       }]
+//     }
+//   }
+// }
+
+
+// for_day: '2017-02-13',

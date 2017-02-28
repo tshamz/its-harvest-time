@@ -1,3 +1,5 @@
+'use strict';
+
 module.exports = {
   data: [ { name: { first: 'Kenny', last: 'Rosenberg' },
     hours: { totalTime: 5.75, billableTime: 5.5 },

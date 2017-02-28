@@ -1,3 +1,5 @@
+'use strict';
+
 const dummyData = require('./dummy-data.js');
 
 const routes = {

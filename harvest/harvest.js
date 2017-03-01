@@ -147,13 +147,10 @@ const calculateTotals = function (fetchedTimeEntries) {
 };
 
 const pollForEntries = function () {
-  fetchEmployees()
+  return fetchEmployees()
   .then(fetchEmployeesTimeEntries)
   .then(storeTimeEntries)
-  .then(calculateTotals)
-  .done(function () {
-    console.log('successfully polled for entries.');
-  });
+  .then(calculateTotals);
 };
 
 const getEntriesForDay = function (date) {

@@ -29,7 +29,10 @@ const routes = {
     res.json(responseHandler());
   },
   getTime: function (req, res) {
-    res.json({'data': harvest.time() });
+    harvest.poll()
+    .done(function (totals) {
+      res.json({'data': totals });
+    });
   },
   getDay: function (req, res) {
     if (!validateParams(req.query, ['date'])) {
@@ -61,7 +64,6 @@ const routes = {
     .then(mongo.write)
     .done(function () {
       res.json(responseHandler());
-      console.log('successfully updated database.');
     });
   }
   // getCSV: function(req, res) {

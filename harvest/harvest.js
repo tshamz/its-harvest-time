@@ -2,7 +2,6 @@
 
 const Q = require('q');
 const moment = require('moment');
-const timestamp = require('time-stamp');
 
 const Harvest = require('harvest');
 const harvest = new Harvest({

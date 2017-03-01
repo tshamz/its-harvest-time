@@ -10,8 +10,5 @@ const startMongo = function () {
 };
 
 Q.fcall(startMongo).done(function () {
-  harvest.poll()
-  .done(function (totals) {
-    mongo.write({ document: totals, collection: 'time'});
-  });
+  mongo.write({ document: harvest.time(), collection: 'time'});
 });

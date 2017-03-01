@@ -29,10 +29,7 @@ const routes = {
     res.json(responseHandler());
   },
   getTime: function (req, res) {
-    harvest.poll()
-    .done(function (totals) {
-      res.json({'data': totals });
-    });
+    res.json({'data': harvest.time() });
   },
   getDay: function (req, res) {
     if (!validateParams(req.query, ['date'])) {
@@ -41,8 +38,7 @@ const routes = {
     }
     mongo.query({ date: req.query.date, collection: 'time' })
     .done(function (item) {
-      console.log(item);
-      res.json(responseHandler());
+      res.json(item);
     });
   },
   update: function (req, res) {

@@ -27,6 +27,8 @@
     "npm": "2.2.x"
   },
   "devDependencies": {
-    "dotenv": "^4.0.0"
+    "debug": "^2.6.1",
+    "dotenv": "^4.0.0",
+    "time-stamp": "^1.0.1"
   }
 }

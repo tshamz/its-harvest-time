@@ -1,5 +1,6 @@
 'use strict';
 
+const Q = require('q');
 const http = require('http');
 const express = require('express');
 const bodyParser = require('body-parser');
@@ -37,7 +38,7 @@ router.get('/', routes.index);
 router.get('/api/time', routes.getTime);
 
 app.use(function(req, res, next){  // if route not found, respond with 404
-  var jsonData = {
+  const jsonData = {
     status: 'ERROR',
     message: 'Sorry, we cannot find the requested URI'
   };
@@ -85,11 +86,13 @@ const displayRoutes = function () {
   console.log(table.table(data, config));
 };
 
-const createExpressServer = function (deferred) {
-  http.createServer(app).listen(app.get('port'), function() {
-    console.log('Express server listening on port ' + app.get('port'));
-    displayRoutes();
-    deferred.resolve();
+const createExpressServer = function () {
+  return Q.Promise(function (resolve, reject, notify) {
+    http.createServer(app).listen(app.get('port'), function() {
+      console.log('Express server listening on port ' + app.get('port'));
+      displayRoutes();
+      resolve();
+    });
   });
 };
 

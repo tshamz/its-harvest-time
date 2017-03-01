@@ -1,19 +1,24 @@
 'use strict';
 
+const Q = require('q');
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 
-const connectToDatabase = function (deferred) {
-  MongoClient.connect(process.env.MONGODB_URI, function (err, db) {
-    if (err) {
-      console.log(err);
-      deferred.reject(new Error(error));
-    } else {
-      console.log('Database connection ready');
-      deferred.resolve(db);
-      return db;
-    }
+const connectToDatabase = function () {
+  return Q.Promise(function (resolve, reject, notify) {
+    MongoClient.connect(process.env.MONGODB_URI, function (err, db) {
+      if (err) {
+        reject(new Error(err));
+      } else {
+        console.log('Database connection ready');
+        resolve(db);
+      }
+    });
   });
+};
+
+module.exports = {
+  start: connectToDatabase
 };
 
 // var writeToDatabase = function (entries) {  // expects array of objects/documents
@@ -22,7 +27,6 @@ const connectToDatabase = function (deferred) {
 //   var collection = db.collection('time');
 //   collection.insertMany(entries, function(err, result) {
 //     if (err) {
-//       console.log(err);
 //       deferred.reject(new Error(err));
 //       res.status(500).send("DB write failed");
 //     } else {
@@ -38,7 +42,6 @@ const connectToDatabase = function (deferred) {
 // var collection = database.collection('time');
 // collection.find({ name: fullName }).toArray(function (err, result) {
 //   if (err) {
-//     console.log(err);
 //   } else {
 //     if (result.length === 0) {
 //       collection.insert({
@@ -46,7 +49,6 @@ const connectToDatabase = function (deferred) {
 //         dates: {}
 //       }, function (err, result) {
 //         if (err) {
-//           console.log(err);
 //         } else {
 //           console.log(result);
 //         }
@@ -54,10 +56,6 @@ const connectToDatabase = function (deferred) {
 //     }
 //   }
 // });
-
-module.exports = {
-  start: connectToDatabase
-};
 
 // {
 //   "name": "tyler shambora",

@@ -20,6 +20,24 @@ const connectToDatabase = function () {
   });
 };
 
+const queryDatabase = function (params) {
+  let date = params.date;
+  let collection = params.collection;
+  if (date === undefined || collection === undefined) {
+    throw new Error('writeToDatabase(params) requires both a params.date and params.collection property');
+  }
+  let dbCollection = database.collection(collection);
+  return Q.Promise(function (resolve, reject, notify) {
+    dbCollection.findOne({ date: date }, function(err, item) {
+      if (err) {
+        console.log(err);
+        reject(new Error(err));
+      }
+      resolve(item);
+    });
+  })
+};
+
 const writeToDatabase = function (params) {
   let document = params.document;
   let collection = params.collection;
@@ -32,6 +50,7 @@ const writeToDatabase = function (params) {
 
 module.exports = {
   start: connectToDatabase,
+  query: queryDatabase,
   write: writeToDatabase
 };
 

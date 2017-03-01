@@ -36,6 +36,7 @@ router.all('*', function(req, res, next){
 // API routes
 router.get('/', routes.index);
 router.get('/api/time', routes.getTime);
+router.get('/api/day', routes.getDay);
 router.get('/api/update', routes.update);
 
 app.use(function(req, res, next){  // if route not found, respond with 404

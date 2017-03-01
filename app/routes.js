@@ -14,17 +14,37 @@ const responseHandler = function (error) {
   }
 };
 
+const validateParams = function (params, requiredParams) {
+  var isValid = requiredParams.every(function (param) {
+    return Object.prototype.hasOwnProperty.call(params, param) && params[param] !== undefined;
+  });
+  if (!isValid) {
+    return false;
+  }
+  return true;
+};
+
 const routes = {
   index: function (req, res) {
     res.json(responseHandler());
   },
   getTime: function (req, res) {
-    res.json({'data': harvest.time});
+    res.json({'data': harvest.time() });
+  },
+  getDay: function (req, res) {
+    if (!validateParams(req.query, ['date'])) {
+      res.json(responseHandler({ type: 'Missing Parameters', message: 'Please include the proper parameters.' }));
+      return false;
+    }
+    mongo.query({ date: req.query.date, collection: 'time' })
+    .done(function (item) {
+      console.log(item);
+      res.json(responseHandler());
+    });
   },
   update: function (req, res) {
-    let isValid = Object.prototype.hasOwnProperty.call(req.query, 'date');
-    if (!isValid) {
-      res.json(responseHandler({ type: 'Invalid URL', message: 'Please include a `date=YYYY-MM-DD` query parameter' }));
+    if (!validateParams(eq.query, ['date'])) {
+      res.json(responseHandler({ type: 'Missing Parameters', message: 'Please include the proper parameters.' }));
       return false;
     }
 
@@ -53,5 +73,6 @@ const routes = {
 module.exports = {
   index: routes.index,
   getTime: routes.getTime,
+  getDay: routes.getDay,
   update: routes.update
 };

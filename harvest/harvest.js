@@ -151,7 +151,9 @@ const pollForEntries = function () {
   .then(fetchEmployeesTimeEntries)
   .then(storeTimeEntries)
   .then(calculateTotals)
-  .done();
+  .done(function () {
+    console.log('successfully polled for entries.');
+  });
 };
 
 const getEntriesForDay = function (date) {

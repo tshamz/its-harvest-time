@@ -27,9 +27,7 @@ const writeToDatabase = function (params) {
     throw new Error('writeToDatabase(params) requires both a params.document and params.collection property');
   }
   let dbCollection = database.collection(collection);
-  dbCollection.update({ date: document.date }, document, { upsert: true }, function (err, result) {
-    console.log('successfully wrote to database.');
-  });
+  dbCollection.update({ date: document.date }, document, { upsert: true });
 };
 
 module.exports = {

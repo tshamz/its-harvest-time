@@ -41,7 +41,7 @@ const routes = {
     .then(mongo.write)
     .done(function () {
       res.json(responseHandler());
-      console.log(harvest.time());
+      console.log('successfully updated database.');
     });
   }
   // getCSV: function(req, res) {

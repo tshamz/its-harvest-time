@@ -36,10 +36,14 @@ const routes = {
       res.json(responseHandler({ type: 'Missing Parameters', message: 'Please include the proper parameters.' }));
       return false;
     }
-    mongo.query({ date: req.query.date, collection: 'time' })
-    .done(function (item) {
-      res.json(item);
-    });
+    if (Object.prototype.hasOwnProperty.call(req.query, 'to')) {
+
+    } else {
+      mongo.query({ date: req.query.date, collection: 'time' })
+      .done(function (item) {
+        res.json(item);
+      });
+    }
   },
   update: function (req, res) {
     if (!validateParams(eq.query, ['date'])) {

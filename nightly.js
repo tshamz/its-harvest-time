@@ -10,5 +10,9 @@ const startMongo = function () {
 };
 
 Q.fcall(startMongo).done(function () {
-  mongo.write({ document: harvest.time(), collection: 'time'});
+  harvest.poll()
+  .done(function (totals) {
+    console.log('ran schedule daily write to database.');
+    mongo.write({ document: totals, collection: 'time'});
+  });
 });

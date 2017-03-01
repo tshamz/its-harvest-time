@@ -9,7 +9,9 @@ const startMongo = function () {
   return mongo.start();
 };
 
-harvest.poll()
-.done(function (totals) {
-  mongo.write({ document: totals, collection: 'time'})
+Q.fcall(startMongo).done(function () {
+  harvest.poll()
+  .done(function (totals) {
+    mongo.write({ document: totals, collection: 'time'});
+  });
 });

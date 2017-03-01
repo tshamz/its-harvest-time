@@ -1,6 +1,7 @@
 'use strict';
 
 const Q = require('q');
+const moment = require('moment');
 const timestamp = require('time-stamp');
 
 const Harvest = require('harvest');
@@ -27,7 +28,7 @@ const fetchEmployees = function () {
         }).map(function (activePerson) {
           return activePerson.user;
         });
-        resolve(Employees);
+        resolve({employees: Employees});
       }
     });
   });
@@ -45,7 +46,12 @@ const retrieveEmployees = function (filters) {
   }
 };
 
-const fetchUserTimeEntries = function (userId, date) {
+const fetchEmployeeTimeEntries = function (params) {
+  let userId = params.userId;
+  let date = params.date;
+  if (userId == undefined) {
+    throw new Error('fetchEmployeeTimeEntries(params) requires a params.userId property');
+  }
   return Q.Promise(function (resolve, reject, notify) {
     let options = (date === undefined) ? { of_user: userId } : { of_user: userId, date: date };
     harvest.TimeTracking.daily(options, function (err, data) {
@@ -59,10 +65,15 @@ const fetchUserTimeEntries = function (userId, date) {
   })
 };
 
-const fetchGroupTimeEntries = function (group) {
+const fetchEmployeesTimeEntries = function (params) {
+  let employees = params.employees;
+  let date = params.date;
+  if (employees == undefined) {
+    throw new Error('fetchEmployeesTimeEntries(params) requires a params.employee property');
+  }
   let promises = [];
-  group.forEach(function (member) {
-    promises.push(fetchUserTimeEntries(member.id));
+  employees.forEach(function (employee) {
+    promises.push(fetchEmployeeTimeEntries({ userId: employee.id, date: date }));
   });
   return Q.all(promises);
 };
@@ -79,7 +90,7 @@ const calculateTotals = function (fetchedTimeEntries) {
     return employee.id;
   });
 
-  let dailyTotals = timeEntries.map(function (employeeTimeEntries) {
+  let totals = timeEntries.map(function (employeeTimeEntries) {
     let employee = employees[employeesMap.indexOf(employeeTimeEntries.user)];
     let dayEntries = employeeTimeEntries.day_entries;
     let projects = employeeTimeEntries.projects;
@@ -128,25 +139,36 @@ const calculateTotals = function (fetchedTimeEntries) {
     });
     return employeeTotals;
   });
+  let dailyTotals = {
+    date: fetchedTimeEntries[0].for_day,
+    entries: totals
+  }
   DailyTotals = dailyTotals;
   return dailyTotals;
 };
 
 const pollForEntries = function () {
   fetchEmployees()
-  .then(fetchGroupTimeEntries)
+  .then(fetchEmployeesTimeEntries)
   .then(storeTimeEntries)
   .then(calculateTotals)
-  .done(function (totals) {
-    console.log(totals);
-  });
+  .done();
 };
 
+const getEntriesForDay = function (date) {
+  return fetchEmployees()
+  .then(function(params) {
+    return {
+      date: date,
+      employees: params.employees
+    };
+  })
+  .then(fetchEmployeesTimeEntries)
+  .then(calculateTotals);
+}
+
 module.exports = {
-  People: people,
-  TimeTracking: timeTracking,
-  fetchEmployees: fetchEmployees,
-  retrieveEmployees: retrieveEmployees,
-  fetchUserTimeEntries: fetchUserTimeEntries,
-  pollForEntries: pollForEntries
+  poll: pollForEntries,
+  getEntries: getEntriesForDay,
+  time: DailyTotals
 };

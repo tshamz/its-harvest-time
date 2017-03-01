@@ -4,6 +4,8 @@ const Q = require('q');
 const mongodb = require('mongodb');
 const MongoClient = mongodb.MongoClient;
 
+let database;
+
 const connectToDatabase = function () {
   return Q.Promise(function (resolve, reject, notify) {
     MongoClient.connect(process.env.MONGODB_URI, function (err, db) {
@@ -11,20 +13,34 @@ const connectToDatabase = function () {
         reject(new Error(err));
       } else {
         console.log('Database connection ready');
+        database = db;
         resolve(db);
       }
     });
   });
 };
 
+const writeToDatabase = function (params) {
+  let document = params.document;
+  let collection = params.collection;
+  if (document === undefined || collection === undefined) {
+    throw new Error('writeToDatabase(params) requires both a params.document and params.collection property');
+  }
+  let dbCollection = database.collection(collection);
+  dbCollection.update({ date: document.date }, document, { upsert: true }, function (err, result) {
+    console.log('successfully wrote to database.');
+  });
+};
+
 module.exports = {
-  start: connectToDatabase
+  start: connectToDatabase,
+  write: writeToDatabase
 };
 
 // var writeToDatabase = function (entries) {  // expects array of objects/documents
 //   var deferred = Q.defer();
 
-//   var collection = db.collection('time');
+//
 //   collection.insertMany(entries, function(err, result) {
 //     if (err) {
 //       deferred.reject(new Error(err));

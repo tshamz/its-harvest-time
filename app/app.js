@@ -36,6 +36,7 @@ router.all('*', function(req, res, next){
 // API routes
 router.get('/', routes.index);
 router.get('/api/time', routes.getTime);
+router.get('/api/update', routes.update);
 
 app.use(function(req, res, next){  // if route not found, respond with 404
   const jsonData = {
@@ -99,3 +100,21 @@ const createExpressServer = function () {
 module.exports = {
   start: createExpressServer
 };
+
+
+// var buildCSV = function () {
+//   var fields = ['names.first', 'hours.totalTime', 'hours.billableTime'];
+//   var fieldNames = ['Name', 'Total Time', 'Billable Time'];
+//   var sortedData = CalculatedTimes.sort(function (a, b) {
+//     var nameA = a.names.first.toUpperCase();
+//     var nameB = b.names.first.toUpperCase();
+//     if (nameA < nameB) {
+//       return -1;
+//     }
+//     if (nameA > nameB) {
+//       return 1;
+//     }
+//     return 0;
+//   });
+//   return json2csv({data: sortedData, fields: fields, fieldNames: fieldNames});
+// };

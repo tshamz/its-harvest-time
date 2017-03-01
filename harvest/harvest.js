@@ -166,8 +166,12 @@ const getEntriesForDay = function (date) {
   .then(calculateTotals);
 }
 
+const getCurrentTimes = function () {
+  return DailyTotals;
+};
+
 module.exports = {
   poll: pollForEntries,
   getEntries: getEntriesForDay,
-  time: DailyTotals
+  time: getCurrentTimes
 };

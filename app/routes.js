@@ -19,7 +19,7 @@ const routes = {
     res.json(responseHandler());
   },
   getTime: function (req, res) {
-    res.json({'data': dummyData.data});
+    res.json({'data': harvest.time});
   },
   update: function (req, res) {
     let isValid = Object.prototype.hasOwnProperty.call(req.query, 'date');
@@ -41,6 +41,7 @@ const routes = {
     .then(mongo.write)
     .done(function () {
       res.json(responseHandler());
+      console.log(harvest.time());
     });
   }
   // getCSV: function(req, res) {

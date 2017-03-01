@@ -37,24 +37,6 @@ module.exports = {
   write: writeToDatabase
 };
 
-// var writeToDatabase = function (entries) {  // expects array of objects/documents
-//   var deferred = Q.defer();
-
-//
-//   collection.insertMany(entries, function(err, result) {
-//     if (err) {
-//       deferred.reject(new Error(err));
-//       res.status(500).send("DB write failed");
-//     } else {
-//       // Return the added score
-//       deferred.resolve(developers);
-//       res.json(result);
-//     }
-//   });
-
-//   return deferred.promise;
-// };
-
 // var collection = database.collection('time');
 // collection.find({ name: fullName }).toArray(function (err, result) {
 //   if (err) {

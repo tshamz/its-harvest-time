@@ -2,58 +2,30 @@
 
 const dummyData = require('./dummy-data.js');
 
+const Q = require('q');
 const mongo = require('../database/database.js');
 const harvest = require('../harvest/harvest.js');
 
-// const json2csv = require('json2csv');
-
-const responseHandler = function (error) {
-  return {
-    'status': (error) ? `ERROR: ${error.type}` : 'OK',
-    'message': (error) ? error.message : 'Time to get harvesting!'
-  }
-};
-
-const validateParams = function (params, requiredParams) {
-  var isValid = requiredParams.every(function (param) {
-    return Object.prototype.hasOwnProperty.call(params, param) && params[param] !== undefined;
-  });
-  if (!isValid) {
-    return false;
-  }
-  return true;
-};
-
 const routes = {
   index: function (req, res) {
-    res.json(responseHandler());
+    res.json({status: 'OK', message: 'Time to get harvesting!'});
   },
-  getTime: function (req, res) {
+  today: function (req, res) {
     res.json({'data': harvest.time() });
   },
-  getDay: function (req, res) {
-    if (!validateParams(req.query, ['date'])) {
-      res.json(responseHandler({ type: 'Missing Parameters', message: 'Please include the proper parameters.' }));
-      return false;
-    }
-    if (Object.prototype.hasOwnProperty.call(req.query, 'to')) {
-
-    } else {
-      mongo.query({ date: req.query.date, collection: 'time' })
-      .done(function (item) {
-        res.json(item);
-      });
-    }
+  time: function (req, res) {
+    mongo.query({query: {date: req.query.date}, collection: 'time' })
+    .done(function (result) {
+      res.json(result);
+    });
   },
   update: function (req, res) {
-    if (!validateParams(eq.query, ['date'])) {
-      res.json(responseHandler({ type: 'Missing Parameters', message: 'Please include the proper parameters.' }));
+    if (req.query.date === undefined) {
+      res.json({status: 'Error', message: 'Missing Parameters: date'});
       return false;
     }
-
     let parsedDate = req.query.date.split('-');
     let nativeDate = new Date(parsedDate[0], parseInt(parsedDate[1]) - 1, parsedDate[2]);
-
     harvest.getEntries(nativeDate)
     .then(function(totals) {
       return {
@@ -62,19 +34,15 @@ const routes = {
       };
     })
     .then(mongo.write)
-    .done(function () {
-      res.json(responseHandler());
+    .done(function (result) {
+      res.json(result);
     });
   }
-  // getCSV: function(req, res) {
-  //   res.attachment('exported-harvest-times.csv');
-  //   res.status(200).send(buildCSV());
-  // },
 };
 
 module.exports = {
   index: routes.index,
-  getTime: routes.getTime,
-  getDay: routes.getDay,
+  today: routes.today,
+  time: routes.time,
   update: routes.update
 };

@@ -11,13 +11,13 @@ const harvest = require('./harvest/harvest.js');
 const startTimeEntryPolling = function () {
   harvest.poll()
   .done(function () {
-    console.log('successfully polled for entries.');
+    // console.log('successfully polled for entries.');
   });
 
   let entryPollingInterval = setInterval(function () {
     harvest.poll()
     .done(function () {
-      console.log('successfully polled for entries.');
+      // console.log('successfully polled for entries.');
     });
   }, 1000 * 60 * 3);  // 3 minutes
 };

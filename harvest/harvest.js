@@ -39,7 +39,7 @@ const retrieveEmployees = function (filters) {
   } else {
     return Employees.filter(function (employee) {
       return Object.keys(filters).every(function (key) {
-        return employee.user[key] === filters[key];
+        return employee[key] === filters[key];
       });
     });
   }
@@ -54,7 +54,7 @@ const fetchEmployeeTimeEntries = function (params) {
   return Q.Promise(function (resolve, reject, notify) {
     let options = (date === undefined) ? { of_user: userId } : { of_user: userId, date: date };
     harvest.TimeTracking.daily(options, function (err, data) {
-      if (err) {console.log(err);
+      if (err) {
         reject(new Error(err));
       } else {
         data.user = userId;
@@ -99,17 +99,13 @@ const calculateTotals = function (fetchedTimeEntries) {
 
     let employeeTotals = {
       id: employee.id,
-      name: {
-        first: employee.first_name,
-        last: employee.last_name
-      },
+      name: `${employee.first_name} ${employee.last_name}`,
+      department: employee.department,
+      isActive: false,
+      isBillable: false,
       hours: {
         billable: 0,
         total: 0
-      },
-      active: {
-        isActive: false,
-        isBillable: false,
       }
     };
 
@@ -125,16 +121,16 @@ const calculateTotals = function (fetchedTimeEntries) {
           isBillable = true;
         }
       }
-      employeeTotals.hours.total += entry.hours;
+      if (isActive) {
+        employeeTotals.isActive = true;
+      }
+      if (isActive && isBillable) {
+        employeeTotals.isBillabe = true;
+      }
       if (isBillable) {
         employeeTotals.hours.billable += entry.hours;
-        if (isActive) {
-          employeeTotals.active.isActive = true;
-        }
       }
-      if (isActive) {
-        employeeTotals.active.isActive = true;
-      }
+      employeeTotals.hours.total += entry.hours;
     });
     return employeeTotals;
   });

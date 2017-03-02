@@ -21,16 +21,11 @@ const connectToDatabase = function () {
 };
 
 const queryDatabase = function (params) {
-  let date = params.date;
-  let collection = params.collection;
-  if (date === undefined || collection === undefined) {
-    throw new Error('writeToDatabase(params) requires both a params.date and params.collection property');
-  }
-  let dbCollection = database.collection(collection);
+  let query = params.query;
+  let dbCollection = database.collection(params.collection);
   return Q.Promise(function (resolve, reject, notify) {
-    dbCollection.findOne({ date: date }, function(err, item) {
+    dbCollection.find(query).toArray(function(err, item) {
       if (err) {
-        console.log(err);
         reject(new Error(err));
       }
       resolve(item);
@@ -40,12 +35,16 @@ const queryDatabase = function (params) {
 
 const writeToDatabase = function (params) {
   let document = params.document;
-  let collection = params.collection;
-  if (document === undefined || collection === undefined) {
-    throw new Error('writeToDatabase(params) requires both a params.document and params.collection property');
-  }
-  let dbCollection = database.collection(collection);
-  dbCollection.update({ date: document.date }, document, { upsert: true });
+  let dbCollection = database.collection(params.collection);
+  return Q.Promise(function (resolve, reject, notify) {
+    dbCollection.update({ date: document.date }, document, { upsert: true }, function(err, item) {
+      if (err) {
+        reject(new Error(err));
+      }
+      resolve(item);
+    });
+  });
+
 };
 
 module.exports = {

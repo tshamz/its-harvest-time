@@ -35,8 +35,8 @@ router.all('*', function(req, res, next){
 
 // API routes
 router.get('/', routes.index);
-router.get('/api/time', routes.getTime);
-router.get('/api/day', routes.getDay);
+router.get('/api/today', routes.today);
+router.get('/api/time', routes.time);
 router.get('/api/update', routes.update);
 
 app.use(function(req, res, next){  // if route not found, respond with 404
@@ -102,7 +102,8 @@ module.exports = {
   start: createExpressServer
 };
 
-
+// const json2csv = require('json2csv');
+//
 // var buildCSV = function () {
 //   var fields = ['names.first', 'hours.totalTime', 'hours.billableTime'];
 //   var fieldNames = ['Name', 'Total Time', 'Billable Time'];
@@ -119,3 +120,8 @@ module.exports = {
 //   });
 //   return json2csv({data: sortedData, fields: fields, fieldNames: fieldNames});
 // };
+
+// getCSV: function(req, res) {
+//   res.attachment('exported-harvest-times.csv');
+//   res.status(200).send(buildCSV());
+// },

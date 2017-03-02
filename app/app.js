@@ -37,6 +37,7 @@ router.all('*', function(req, res, next){
 router.get('/', routes.index);
 router.get('/api/today', routes.today);
 router.get('/api/day', routes.day);
+router.get('/api/week', routes.week);
 router.get('/api/month', routes.month);
 router.get('/csv/month', routes.csvMonth);
 router.get('/api/update', routes.update);

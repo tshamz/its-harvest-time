@@ -49,22 +49,61 @@ const routes = {
       let filteredData = today.entries.filter(function (entry) {
         return entry.department === req.query.department;
       });
-      res.json({'data': {date: today.date, filtered_by: Object.keys(req.query), entries: filteredData}});
+      res.json({date: today.date, filtered_by: Object.keys(req.query), entries: filteredData});
     } else {
-      res.json({'data': harvest.time()});
+      res.json(harvest.time());
     }
   },
   day: function (req, res) {
-    mongo.query({query: {date: req.query.date}, collection: 'time' })
+    mongo.query({query: {date: req.query.date}, collection: 'time'})
     .done(function (result) {
-      res.json(result);
+      let data = result[0];
+      if (req.query.department !== undefined) {
+        let filteredData = data.entries.filter(function (entry) {
+          return entry.department === req.query.department;
+        });
+        res.json({date: data.date, filtered_by: Object.keys(req.query), entries: filteredData});
+      } else {
+        res.json(data);
+      }
+    });
+  },
+  week: function (req, res) {
+    let today = new Date;
+    let todaysData = harvest.time();
+    let dates = []
+    for (let i = today.getDay() - 1; i > 0; i--) {
+      let date = new Date(today.getFullYear(), today.getMonth(), (today.getDate() - i), 12, 0, 0);
+      dates.push(date.toISOString().split('T')[0]);
+    };
+    mongo.query({query: {date: {$in: dates}}, collection: 'time'})
+    .then(function (result) {
+      return result.concat(todaysData);
+    })
+    .then(colateDateRangeEntries)
+    .done(function (result) {
+      if (req.query.department !== undefined) {
+        let filteredData = result.filter(function (entry) {
+          return entry.department === req.query.department;
+        });
+        res.json({week_starting_on: dates[0], filtered_by: Object.keys(req.query), entries: filteredData});
+      } else {
+        res.json({week_starting_on: dates[0], filtered_by: Object.keys(req.query), entries: result});
+      }
     });
   },
   month: function (req, res) {
-    mongo.query({query: {date: {$regex: `^${req.query.date}`}}, collection: 'time' })
+    mongo.query({query: {date: {$regex: `^${req.query.date}`}}, collection: 'time'})
     .then(colateDateRangeEntries)
-    .done(function (data) {
-      res.json(data);
+    .done(function (result) {
+      if (req.query.department !== undefined) {
+        let filteredData = result.filter(function (entry) {
+          return entry.department === req.query.department;
+        });
+        res.json({month_starting_on: `${req.query.date}-01`, filtered_by: Object.keys(req.query), entries: filteredData});
+      } else {
+        res.json({month_starting_on: `${req.query.date}-01`, filtered_by: Object.keys(req.query), entries: result});
+      }
     });
   },
   update: function (req, res) {
@@ -101,12 +140,8 @@ module.exports = {
   index: routes.index,
   today: routes.today,
   day: routes.day,
+  week: routes.week,
   month: routes.month,
   csvMonth: routes.csvMonth,
   update: routes.update
 };
-
-
-
-
-

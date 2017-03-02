@@ -23,6 +23,8 @@ const colateDateRangeEntries = function (rawRangeEntries) {
         name: entry.name,
         id: entry.id,
         department: entry.department,
+        isActive: entry.isActive,
+        isBillable: entry.isBillable,
         hours: {
           billable: 0,
           total: 0

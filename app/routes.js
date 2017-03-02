@@ -1,10 +1,43 @@
 'use strict';
 
-const dummyData = require('./dummy-data.js');
-
 const Q = require('q');
+const json2csv = require('json2csv');
+
 const mongo = require('../database/database.js');
 const harvest = require('../harvest/harvest.js');
+
+const buildCSV = function (data) {
+  var fields = ['name', 'hours.total', 'hours.billable'];
+  var fieldNames = ['Name', 'Total Time', 'Billable Time'];
+  return json2csv({data: data, fields: fields, fieldNames: fieldNames});
+};
+
+const colateDateRangeEntries = function (rawRangeEntries) {
+  let monthTotals = {};
+  let data = [];
+  [].concat.apply([], rawRangeEntries.map(function (day) {
+    return day.entries;
+  })).forEach(function (entry) {
+    if (!monthTotals.hasOwnProperty(entry.id)) {
+      monthTotals[entry.id] = {
+        name: entry.name,
+        id: entry.id,
+        department: entry.department,
+        hours: {
+          billable: 0,
+          total: 0
+        }
+      }
+    } else {
+      monthTotals[entry.id].hours.billable += entry.hours.billable;
+      monthTotals[entry.id].hours.total += entry.hours.total;
+    }
+  });
+  for (let key in monthTotals) {
+    data.push(monthTotals[key]);
+  }
+  return data;
+};
 
 const routes = {
   index: function (req, res) {
@@ -13,10 +46,17 @@ const routes = {
   today: function (req, res) {
     res.json({'data': harvest.time() });
   },
-  time: function (req, res) {
+  day: function (req, res) {
     mongo.query({query: {date: req.query.date}, collection: 'time' })
     .done(function (result) {
       res.json(result);
+    });
+  },
+  month: function (req, res) {
+    mongo.query({query: {date: {$regex: `^${req.query.date}`}}, collection: 'time' })
+    .then(colateDateRangeEntries)
+    .done(function (data) {
+      res.json(data);
     });
   },
   update: function (req, res) {
@@ -37,37 +77,28 @@ const routes = {
     .done(function (result) {
       res.json(result);
     });
-  }
+  },
+  csvMonth: function(req, res) {
+    mongo.query({query: {date: {$regex: `^${req.query.date}`}}, collection: 'time' })
+    .then(colateDateRangeEntries)
+    .then(buildCSV)
+    .done(function (csv) {
+      res.attachment('exported-harvest-times.csv');
+      res.status(200).send(csv);
+    });
+  },
 };
 
 module.exports = {
   index: routes.index,
   today: routes.today,
-  time: routes.time,
+  day: routes.day,
+  month: routes.month,
+  csvMonth: routes.csvMonth,
   update: routes.update
 };
 
 
-// const json2csv = require('json2csv');
-//
-// var buildCSV = function () {
-//   var fields = ['names.first', 'hours.totalTime', 'hours.billableTime'];
-//   var fieldNames = ['Name', 'Total Time', 'Billable Time'];
-//   var sortedData = CalculatedTimes.sort(function (a, b) {
-//     var nameA = a.names.first.toUpperCase();
-//     var nameB = b.names.first.toUpperCase();
-//     if (nameA < nameB) {
-//       return -1;
-//     }
-//     if (nameA > nameB) {
-//       return 1;
-//     }
-//     return 0;
-//   });
-//   return json2csv({data: sortedData, fields: fields, fieldNames: fieldNames});
-// };
 
-// getCSV: function(req, res) {
-//   res.attachment('exported-harvest-times.csv');
-//   res.status(200).send(buildCSV());
-// },
+
+

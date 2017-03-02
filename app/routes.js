@@ -49,12 +49,7 @@ const routes = {
       let filteredData = today.entries.filter(function (entry) {
         return entry.department === req.query.department;
       });
-      res.json({'data': {
-        date: today.date,
-        filtered_by: [Object.keys(req.query)],
-        filter_values: Object.keys(req.query).map(function (key) {return req.query[key]}),
-        entries: filteredData
-      }});
+      res.json({'data': {date: today.date, filtered_by: Object.keys(req.query), entries: filteredData}});
     } else {
       res.json({'data': harvest.time()});
     }

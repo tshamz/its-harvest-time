@@ -41,6 +41,7 @@ const writeToDatabase = function (params) {
       if (err) {
         reject(new Error(err));
       }
+      console.log(`Entry for ${document.date} updated.`);
       resolve(item);
     });
   });
@@ -52,4 +53,3 @@ module.exports = {
   query: queryDatabase,
   write: writeToDatabase
 };
-

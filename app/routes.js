@@ -33,6 +33,12 @@ const colateDateRangeEntries = function (rawRangeEntries) {
     } else {
       monthTotals[entry.id].hours.billable += entry.hours.billable;
       monthTotals[entry.id].hours.total += entry.hours.total;
+      if (entry.isActive) {
+        monthTotals[entry.id].isActive = true;
+      }
+      if (entry.isBillable) {
+        monthTotals[entry.id].isBillable = true;
+      }
     }
   });
   for (let key in monthTotals) {

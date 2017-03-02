@@ -44,7 +44,15 @@ const routes = {
     res.json({status: 'OK', message: 'Time to get harvesting!'});
   },
   today: function (req, res) {
-    res.json({'data': harvest.time() });
+    if (req.query.department !== undefined) {
+      let today = harvest.time()
+      let filteredData = today.entries.filter(function (entry) {
+        return entry.department === req.query.department;
+      });
+      res.json({'data': {date: today.date, filtered_by: 'department', entries: filteredData}});
+    } else {
+      res.json({'data': harvest.time()});
+    }
   },
   day: function (req, res) {
     mongo.query({query: {date: req.query.date}, collection: 'time' })

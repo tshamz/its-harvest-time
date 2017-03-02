@@ -1,9 +1,8 @@
 'use strict';
 
 const Q = require('q');
-const moment = require('moment');
-
 const Harvest = require('harvest');
+
 const harvest = new Harvest({
   subdomain: process.env.subdomain,
   email: process.env.email,

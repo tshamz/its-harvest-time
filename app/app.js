@@ -101,27 +101,3 @@ const createExpressServer = function () {
 module.exports = {
   start: createExpressServer
 };
-
-// const json2csv = require('json2csv');
-//
-// var buildCSV = function () {
-//   var fields = ['names.first', 'hours.totalTime', 'hours.billableTime'];
-//   var fieldNames = ['Name', 'Total Time', 'Billable Time'];
-//   var sortedData = CalculatedTimes.sort(function (a, b) {
-//     var nameA = a.names.first.toUpperCase();
-//     var nameB = b.names.first.toUpperCase();
-//     if (nameA < nameB) {
-//       return -1;
-//     }
-//     if (nameA > nameB) {
-//       return 1;
-//     }
-//     return 0;
-//   });
-//   return json2csv({data: sortedData, fields: fields, fieldNames: fieldNames});
-// };
-
-// getCSV: function(req, res) {
-//   res.attachment('exported-harvest-times.csv');
-//   res.status(200).send(buildCSV());
-// },

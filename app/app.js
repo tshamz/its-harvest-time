@@ -41,6 +41,7 @@ router.get('/api/week', routes.week);
 router.get('/api/month', routes.month);
 router.get('/csv/month', routes.csvMonth);
 router.get('/api/update', routes.update);
+router.get('/api/report', routes.report);
 
 app.use(function(req, res, next){  // if route not found, respond with 404
   const jsonData = {

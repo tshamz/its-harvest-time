@@ -133,7 +133,7 @@ const routes = {
       res.json(result);
     });
   },
-  csvMonth: function(req, res) {
+  csvMonth: function (req, res) {
     mongo.query({query: {date: {$regex: `^${req.query.date}`}}, collection: 'time' })
     .then(colateDateRangeEntries)
     .then(buildCSV)
@@ -142,6 +142,25 @@ const routes = {
       res.status(200).send(csv);
     });
   },
+  report: function (req, res) {
+    let missingParams = ['from', 'to', 'department'].filter(function (param) {
+      return Object.keys(req.query).indexOf(param) === -1;
+    });
+    if (missingParams.length > 0) {
+      res.json({status: 'ERROR', message: `Missing required params: ${missingParams.join(', ')}`});
+    } else {
+      harvest.report(req.query)
+      .then(function (report) {
+        if (req.query.format === 'csv') {
+          let csv = json2csv({data: report, fieldNames: ['Name', 'Billable Hours', 'Total Hours']});
+          res.attachment('exported-harvest-times.csv');
+          res.status(200).send(csv);
+        } else {
+          res.json(report);
+        }
+      });
+    }
+  }
 };
 
 module.exports = {
@@ -151,5 +170,6 @@ module.exports = {
   week: routes.week,
   month: routes.month,
   csvMonth: routes.csvMonth,
-  update: routes.update
+  update: routes.update,
+  report: routes.report
 };

@@ -14,6 +14,34 @@ const timeTracking = harvest.TimeTracking;
 let Employees;
 let TimeEntries;
 let DailyTotals;
+let Projects;
+
+const fetchProjects = function () {
+  return Q.Promise(function (resolve, reject, notify) {
+    harvest.Projects.list({}, function (err, projects) {
+      if (err) {
+        reject(new Error(err));
+      } else {
+        console.log(projects);
+        resolve(projects);
+      }
+    });
+  });
+};
+
+const fetchTasks = function () {
+  return Q.Promise(function (resolve, reject, notify) {
+    harvest.Tasks.list({}, function (err, tasks) {
+      console.log(tasks);
+      if (err) {
+        reject(new Error(err));
+      } else {
+        console.log(tasks.length);
+        resolve(tasks);
+      }
+    });
+  });
+};
 
 const fetchEmployees = function () {
   return Q.Promise(function (resolve, reject, notify) {
@@ -164,8 +192,51 @@ const getCurrentTimes = function () {
   return DailyTotals;
 };
 
+const fetchReport = function (params, userId, isBillable) {
+  let options = {
+    from: params.from,
+    to: params.to,
+    user_id: userId
+  };
+  if (isBillable) {
+    options.billable = true
+  };
+  return Q.Promise(function (resolve, reject, notify) {
+    harvest.Reports.timeEntriesByUser(options, function (err, data) {
+      if (err) reject(new Error(err));
+      let hours = data.reduce(function (total, current) {
+        return total + current.day_entry.hours;
+      }, 0);
+      resolve(hours);
+    });
+  });
+};
+
+const fetchReports = function (params, employee) {
+  let name = `${employee.first_name + employee.last_name}`;
+  return Q.spread([
+    fetchReport(params, employee.id, true),
+    fetchReport(params, employee.id)],
+  function (billableHours, totalHours) {
+    return {
+      name: name,
+      billableHours: billableHours,
+      totalHours: totalHours
+    }
+  });
+};
+
+const fetchEmployeesReports = function (params) {
+  let promises = [];
+  retrieveEmployees({department: params.department}).forEach(function (employee) {
+    promises.push(fetchReports(params, employee))
+  })
+  return Q.all(promises);
+};
+
 module.exports = {
   poll: pollForEntries,
   getEntries: getEntriesForDay,
-  time: getCurrentTimes
+  time: getCurrentTimes,
+  report: fetchEmployeesReports
 };

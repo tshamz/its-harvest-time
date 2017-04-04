@@ -213,7 +213,7 @@ const fetchReport = function (params, userId, isBillable) {
 };
 
 const fetchReports = function (params, employee) {
-  let name = `${employee.first_name + employee.last_name}`;
+  let name = `${employee.first_name} ${employee.last_name}`;
   return Q.spread([
     fetchReport(params, employee.id, true),
     fetchReport(params, employee.id)],

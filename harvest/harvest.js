@@ -204,6 +204,9 @@ const fetchReport = function (params, userId, isBillable) {
   return Q.Promise(function (resolve, reject, notify) {
     harvest.Reports.timeEntriesByUser(options, function (err, data) {
       if (err) reject(new Error(err));
+      console.log('\n=========');
+      console.log(data);
+      console.log('=========\n');
       let hours = data.reduce(function (total, current) {
         return total + current.day_entry.hours;
       }, 0);

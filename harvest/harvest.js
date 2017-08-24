@@ -61,7 +61,7 @@ const fetchEmployees = function () {
 };
 
 const retrieveEmployees = function (filters) {
-  if (filters === undefined) {
+  if (Object.keys(filters).length === 0) {
     return Employees;
   } else {
     return Employees.filter(function (employee) {
@@ -233,7 +233,8 @@ const fetchReports = function (params, employee) {
 
 const fetchEmployeesReports = function (params) {
   let promises = [];
-  retrieveEmployees({department: params.department}).forEach(function (employee) {
+  const filters = (params.department == undefined) ? {} : {department: params.department};
+  retrieveEmployees(filters).forEach(function (employee) {
     promises.push(fetchReports(params, employee))
   })
   return Q.all(promises);

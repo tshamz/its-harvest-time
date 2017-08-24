@@ -21,7 +21,7 @@ const routes = {
     }
   },
   report: function (req, res) {
-    let missingParams = ['from', 'to', 'department'].filter(function (param) {
+    let missingParams = ['from', 'to'].filter(function (param) {
       return Object.keys(req.query).indexOf(param) === -1;
     });
     if (missingParams.length > 0) {

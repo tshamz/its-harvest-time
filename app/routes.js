@@ -34,7 +34,13 @@ const routes = {
           res.attachment('exported-harvest-times.csv');
           res.status(200).send(csv);
         } else {
-          res.json(report);
+          const json = {
+            "from": req.query.from,
+            "to": req.query.to,
+            "totals": report
+          };
+
+          res.json(json);
         }
       });
     }
@@ -46,3 +52,4 @@ module.exports = {
   today: routes.today,
   report: routes.report
 };
+

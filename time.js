@@ -3,16 +3,6 @@
 const Q = require('q');
 
 /**
- * Harvest Integration
- */
-
-const harvest = require('./harvest/harvest.js');
-
-const fetchEmployees = function () {
-  harvest.employees();
-};
-
-/**
  * ExpressJS App
  */
 
@@ -26,5 +16,4 @@ const startExpress = function () {
  * Init
  */
 
-Q.fcall(startExpress)
- .done(fetchEmployees);
+Q.fcall(startExpress);

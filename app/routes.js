@@ -38,7 +38,6 @@ const routes = {
 
 module.exports = {
   index: routes.index,
-  today: routes.today,
   report: routes.report
 };
 

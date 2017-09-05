@@ -92,5 +92,6 @@ const fetchEmployeesReports = function (params) {
 };
 
 module.exports = {
+  employees: fetchEmployees,
   report: fetchEmployeesReports
 };

@@ -8,18 +8,8 @@ const Q = require('q');
 
 const harvest = require('./harvest/harvest.js');
 
-const startTimeEntryPolling = function () {
-  harvest.poll()
-  .done(function () {
-    // console.log('successfully polled for entries.');
-  });
-
-  let entryPollingInterval = setInterval(function () {
-    harvest.poll()
-    .done(function () {
-      // console.log('successfully polled for entries.');
-    });
-  }, 1000 * 60 * 3);  // 3 minutes
+const fetchEmployees = function () {
+  harvest.employees();
 };
 
 /**
@@ -37,4 +27,4 @@ const startExpress = function () {
  */
 
 Q.fcall(startExpress)
- .done(startTimeEntryPolling);
+ .done(fetchEmployees);

@@ -9,17 +9,6 @@ const routes = {
   index: function (req, res) {
     res.json({status: 'OK', message: 'Time to get harvesting!'});
   },
-  today: function (req, res) {
-    if (req.query.department !== undefined) {
-      let today = harvest.time()
-      let filteredData = today.entries.filter(function (entry) {
-        return entry.department === req.query.department;
-      });
-      res.json({date: today.date, filtered_by: Object.keys(req.query), entries: filteredData});
-    } else {
-      res.json(harvest.time());
-    }
-  },
   report: function (req, res) {
     let missingParams = ['from', 'to'].filter(function (param) {
       return Object.keys(req.query).indexOf(param) === -1;

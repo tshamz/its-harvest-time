@@ -3,8 +3,7 @@
 const Q = require('q');
 const json2csv = require('json2csv');
 
-const harvest = require('../harvest/harvest.js');
-console.log(harvest)
+const harvest = require('../harvest/harvest.js')
 
 const routes = {
   index: function (req, res) {

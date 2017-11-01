@@ -87,10 +87,13 @@ const fetchReports = function (params, employee) {
   });
 };
 
-const fetchEmployeesReports = function (params) {
-  console.log('ding')
+const fetchEmployeesReports = function async (params) {
   let promises = [];
   const filters = (params.department == undefined) ? {department: 'All'} : {department: params.department};
+
+  const employees = await fetchEmployees();
+
+  console.log(employees);
 
   fetchEmployees().then(employees => {
     console.log(employees)

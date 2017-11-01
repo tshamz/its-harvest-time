@@ -24,7 +24,7 @@
   },
   "engines": {
     "node": "7.6.x",
-    "npm": "2.2.x"
+    "npm": "3.10.9"
   },
   "devDependencies": {
     "debug": "^2.6.1",

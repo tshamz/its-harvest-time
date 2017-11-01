@@ -86,6 +86,7 @@ const fetchReports = function (params, employee) {
 };
 
 const fetchEmployeesReports = function (params) {
+  console.log(Employees);
   let promises = [];
   const filters = (params.department == undefined) ? {department: 'All'} : {department: params.department};
   console.log(filters);

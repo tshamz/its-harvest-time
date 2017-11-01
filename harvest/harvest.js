@@ -32,7 +32,7 @@ const fetchEmployees = function () {
 };
 
 const retrieveEmployees = function (filters) {
-  fetchEmployees().then(function (employees) {
+  return fetchEmployees().then(function (employees) {
     console.log(employees)
     if (filters.department === 'All') {
       return Employees;
@@ -88,6 +88,8 @@ const fetchReports = function (params, employee) {
 const fetchEmployeesReports = function (params) {
   let promises = [];
   const filters = (params.department == undefined) ? {department: 'All'} : {department: params.department};
+  console.log(filters);
+
   retrieveEmployees(filters).forEach(function (employee) {
     promises.push(fetchReports(params, employee))
   })

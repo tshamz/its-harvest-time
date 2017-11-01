@@ -13,6 +13,8 @@ const routes = {
     let missingParams = ['from', 'to'].filter(function (param) {
       return Object.keys(req.query).indexOf(param) === -1;
     });
+
+console.log('hi')
     if (missingParams.length > 0) {
       res.json({status: 'ERROR', message: `Missing required params: ${missingParams.join(', ')}`});
     } else {

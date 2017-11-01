@@ -14,38 +14,33 @@ const timeTracking = harvest.TimeTracking;
 
 let Employees;
 
-
-
 const fetchEmployees = function () {
-  return new Promise((resolve, reject) => {
+  return Q.Promise(function (resolve, reject, notify) {
     harvest.People.list({}, function (err, people) {
       if (err) {
         reject(new Error(err));
       } else {
-        const employees = people.filter(function (person) {
+        Employees = people.filter(function (person) {
           return person.user.is_active === true;
         }).map(function (activePerson) {
           return activePerson.user;
         });
-        resolve(employees);
+        resolve({employees: Employees});
       }
     });
-  })
+  });
 };
 
 const retrieveEmployees = function (filters) {
-  return fetchEmployees().then(function (employees) {
-    console.log(employees)
-    if (filters.department === 'All') {
-      return Employees;
-    } else {
-      return Employees.filter(function (employee) {
-        return Object.keys(filters).every(function (key) {
-          return employee[key] === filters[key];
-        });
+  if (filters.department === 'All') {
+    return Employees;
+  } else {
+    return Employees.filter(function (employee) {
+      return Object.keys(filters).every(function (key) {
+        return employee[key] === filters[key];
       });
-    }
-  })
+    });
+  }
 };
 
 const fetchReport = function (params, userId, isBillable) {
@@ -87,27 +82,13 @@ const fetchReports = function (params, employee) {
   });
 };
 
-const fetchEmployeesReports = function async (params) {
+const fetchEmployeesReports = function (params) {
   let promises = [];
   const filters = (params.department == undefined) ? {department: 'All'} : {department: params.department};
-
-  const employees = await fetchEmployees();
-
-  console.log(employees);
-
-  fetchEmployees().then(employees => {
-    console.log(employees)
-  });
-
-  // retrieveEmployees(filters).then(function (employees) {
-  //   console.log('1')
-  //   console.log(employees)
-  //   employees.forEach(function (employee) {
-  //     promises.push(fetchReports(params, employee))
-  //   });
-  // })
-
-  // return Q.all(promises);
+  retrieveEmployees(filters).forEach(function (employee) {
+    promises.push(fetchReports(params, employee))
+  })
+  return Q.all(promises);
 };
 
 module.exports = {

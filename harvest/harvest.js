@@ -25,7 +25,8 @@ const fetchEmployees = function () {
         }).map(function (activePerson) {
           return activePerson.user;
         });
-        resolve({employees: Employees});
+        // resolve({employees: Employees});
+        resolve(Employees);
       }
     });
   });
@@ -86,20 +87,20 @@ const fetchReports = function (params, employee) {
 };
 
 const fetchEmployeesReports = function (params) {
-  console.log(Employees);
   let promises = [];
   const filters = (params.department == undefined) ? {department: 'All'} : {department: params.department};
-  console.log(filters);
 
-  retrieveEmployees(filters).then(function (employees) {
-    console.log('1')
-    console.log(employees)
-    employees.forEach(function (employee) {
-      promises.push(fetchReports(params, employee))
-    });
-  })
+  fetchEmployees().then(employees => console.log(employees));
 
-  return Q.all(promises);
+  // retrieveEmployees(filters).then(function (employees) {
+  //   console.log('1')
+  //   console.log(employees)
+  //   employees.forEach(function (employee) {
+  //     promises.push(fetchReports(params, employee))
+  //   });
+  // })
+
+  // return Q.all(promises);
 };
 
 module.exports = {

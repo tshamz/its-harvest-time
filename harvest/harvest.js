@@ -1,6 +1,7 @@
 'use strict';
 
 const Harvest = require('harvest');
+
 const harvest = new Harvest({
   subdomain: process.env.subdomain,
   email: process.env.email,

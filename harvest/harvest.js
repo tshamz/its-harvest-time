@@ -1,95 +1,62 @@
 'use strict';
 
-const Q = require('q');
 const Harvest = require('harvest');
-
 const harvest = new Harvest({
   subdomain: process.env.subdomain,
   email: process.env.email,
   password: process.env.password
 });
 
-const people = harvest.People;
-const timeTracking = harvest.TimeTracking;
-
-let Employees;
-
-const fetchEmployees = function () {
-  return Q.Promise(function (resolve, reject, notify) {
-    harvest.People.list({}, function (err, people) {
-      if (err) {
-        reject(new Error(err));
-      } else {
-        Employees = people.filter(function (person) {
-          return person.user.is_active === true;
-        }).map(function (activePerson) {
-          return activePerson.user;
-        });
-        resolve({employees: Employees});
-      }
-    });
-  });
-};
-
-const retrieveEmployees = function (filters) {
-  if (filters.department === 'All') {
-    return Employees;
-  } else {
-    return Employees.filter(function (employee) {
-      return Object.keys(filters).every(function (key) {
-        return employee[key] === filters[key];
-      });
-    });
-  }
-};
-
-const fetchReport = function (params, userId, isBillable) {
-  let options = {
-    from: params.from,
-    to: params.to,
-    user_id: userId
-  };
-  if (isBillable) {
-    options.billable = true
-  };
-  return Q.Promise(function (resolve, reject, notify) {
-    harvest.Reports.timeEntriesByUser(options, function (err, data) {
+const fetchEmployees =  () => {
+  return new Promise((resolve, reject) => {
+    harvest.People.list({}, (err, people) => {
       if (err) reject(new Error(err));
-      let hours;
-      if (Object.keys(data).length !== 0) {
-        hours = data.reduce(function (total, current) {
-          return total + current.day_entry.hours;
-        }, 0);
-      } else {
-        hours = 0;
+      const activeEmployees = people.filter(person => {
+        return person.user.is_active === true;
+      }).map(activePerson => {
+        return activePerson.user;
+      });
+      resolve(activeEmployees);
+    });
+  })
+};
+
+const fetchReport = (options) => {
+  return new Promise((resolve, reject) => {
+    harvest.Reports.timeEntriesByUser(options, (err, data) => {
+      if (err) reject(new Error(err));
+      let hours = 0;
+      if (data) {
+        hours = data.reduce((total, current) => total + current.day_entry.hours, 0);
       }
       resolve(hours);
     });
   });
+}
+
+const filterEmployees = (employees, department) => {
+  if (department) {
+    return employees.filter(employee => {
+      return employee.roles.map(role => role.toLowerCase()).includes(department.toLowerCase());
+    });
+  }
+  return employees;
 };
 
-const fetchReports = function (params, employee) {
-  let name = `${employee.first_name} ${employee.last_name}`;
-  return Q.spread([
-    fetchReport(params, employee.id, true),
-    fetchReport(params, employee.id)],
-  function (billableHours, totalHours) {
+const fetchEmployeesReports = async params => {
+  const employees = await fetchEmployees();
+  const filteredEmployees = filterEmployees(employees, params.department);
+  const promises = filteredEmployees.map(async employee => {
+    const totalHours = fetchReport({ from: params.from, to: params.to, user_id: employee.id });
+    const billableHours = fetchReport({ from: params.from, to: params.to, user_id: employee.id, billable: true });
+    const results = await Promise.all([billableHours, totalHours]);
     return {
-      name: name,
-      billableHours: billableHours,
-      totalHours: totalHours
-    }
+      name: `${employee.first_name} ${employee.last_name}`,
+      billableHours: results[0],
+      totalHours: results[1]
+    };
   });
-};
-
-const fetchEmployeesReports = function (params) {
-  console.log(Employees)
-  let promises = [];
-  const filters = (params.department == undefined) ? {department: 'All'} : {department: params.department};
-  retrieveEmployees(filters).forEach(function (employee) {
-    promises.push(fetchReports(params, employee))
-  })
-  return Q.all(promises);
+  return Promise.all(promises);
 };
 
 module.exports = {

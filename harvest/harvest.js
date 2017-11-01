@@ -10,7 +10,7 @@ const harvest = new Harvest({
 
 const fetchEmployees =  () => {
   return new Promise((resolve, reject) => {
-    harvest.People.list({}, (err, people) => {
+    harvest.users.list({}, (err, people) => {
       console.log(people);
       if (err) reject(new Error(err));
       const activeEmployees = people.filter(person => {
@@ -25,7 +25,7 @@ const fetchEmployees =  () => {
 
 const fetchReport = (options) => {
   return new Promise((resolve, reject) => {
-    harvest.Reports.timeEntriesByUser(options, (err, data) => {
+    harvest.reports.timeEntriesByUser(options, (err, data) => {
       if (err) reject(new Error(err));
       let hours = 0;
       if (data) {

@@ -90,9 +90,14 @@ const fetchEmployeesReports = function (params) {
   const filters = (params.department == undefined) ? {department: 'All'} : {department: params.department};
   console.log(filters);
 
-  retrieveEmployees(filters).forEach(function (employee) {
-    promises.push(fetchReports(params, employee))
+  retrieveEmployees(filters).then(function (employees) {
+    console.log('1')
+    console.log(employees)
+    employees.forEach(function (employee) {
+      promises.push(fetchReports(params, employee))
+    });
   })
+
   return Q.all(promises);
 };
 

@@ -11,6 +11,7 @@ const harvest = new Harvest({
 const fetchEmployees =  () => {
   return new Promise((resolve, reject) => {
     harvest.People.list({}, (err, people) => {
+      console.log(people);
       if (err) reject(new Error(err));
       const activeEmployees = people.filter(person => {
         return person.user.is_active === true;

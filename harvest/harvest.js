@@ -32,15 +32,17 @@ const fetchEmployees = function () {
 };
 
 const retrieveEmployees = function (filters) {
-  if (filters.department === 'All') {
-    return Employees;
-  } else {
-    return Employees.filter(function (employee) {
-      return Object.keys(filters).every(function (key) {
-        return employee[key] === filters[key];
+  fetchEmployees().then(function () {
+    if (filters.department === 'All') {
+      return Employees;
+    } else {
+      return Employees.filter(function (employee) {
+        return Object.keys(filters).every(function (key) {
+          return employee[key] === filters[key];
+        });
       });
-    });
-  }
+    }
+  })
 };
 
 const fetchReport = function (params, userId, isBillable) {

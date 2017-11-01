@@ -27,7 +27,7 @@ const fetchEmployees = function () {
         }).map(function (activePerson) {
           return activePerson.user;
         });
-        resolve(Employees);
+        resolve(employees);
       }
     });
   })

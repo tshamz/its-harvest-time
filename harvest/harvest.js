@@ -32,6 +32,23 @@ const fetchEmployees = function () {
   });
 };
 
+const fetchEmployees = function () {
+  return new Promise((resolve, reject) => {
+    harvest.People.list({}, function (err, people) {
+      if (err) {
+        reject(new Error(err));
+      } else {
+        const employees = people.filter(function (person) {
+          return person.user.is_active === true;
+        }).map(function (activePerson) {
+          return activePerson.user;
+        });
+        resolve(Employees);
+      }
+    });
+  })
+};
+
 const retrieveEmployees = function (filters) {
   return fetchEmployees().then(function (employees) {
     console.log(employees)
@@ -90,7 +107,9 @@ const fetchEmployeesReports = function (params) {
   let promises = [];
   const filters = (params.department == undefined) ? {department: 'All'} : {department: params.department};
 
-  fetchEmployees().then(employees => console.log(employees));
+  fetchEmployees().then(employees => {
+    console.log(employees)
+  });
 
   // retrieveEmployees(filters).then(function (employees) {
   //   console.log('1')

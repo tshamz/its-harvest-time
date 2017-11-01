@@ -32,7 +32,8 @@ const fetchEmployees = function () {
 };
 
 const retrieveEmployees = function (filters) {
-  fetchEmployees().then(function () {
+  fetchEmployees().then(function (employees) {
+    console.log(employees)
     if (filters.department === 'All') {
       return Employees;
     } else {

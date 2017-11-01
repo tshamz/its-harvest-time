@@ -14,23 +14,7 @@ const timeTracking = harvest.TimeTracking;
 
 let Employees;
 
-// const fetchEmployees = function () {
-//   return Q.Promise(function (resolve, reject, notify) {
-//     harvest.People.list({}, function (err, people) {
-//       if (err) {
-//         reject(new Error(err));
-//       } else {
-//         Employees = people.filter(function (person) {
-//           return person.user.is_active === true;
-//         }).map(function (activePerson) {
-//           return activePerson.user;
-//         });
-//         // resolve({employees: Employees});
-//         resolve(Employees);
-//       }
-//     });
-//   });
-// };
+
 
 const fetchEmployees = function () {
   return new Promise((resolve, reject) => {
@@ -104,6 +88,7 @@ const fetchReports = function (params, employee) {
 };
 
 const fetchEmployeesReports = function (params) {
+  console.log('ding')
   let promises = [];
   const filters = (params.department == undefined) ? {department: 'All'} : {department: params.department};
 

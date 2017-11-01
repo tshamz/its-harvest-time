@@ -23,7 +23,7 @@
     "table": "^4.0.1"
   },
   "engines": {
-    "node": "4.0.x",
+    "node": "7.6.x",
     "npm": "2.2.x"
   },
   "devDependencies": {

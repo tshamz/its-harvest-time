@@ -10,28 +10,26 @@ const harvest = new Harvest({
 
 const fetchEmployees =  () => {
   return new Promise((resolve, reject) => {
-    harvest.People.list({}, (err, people) => {
-      console.log(people);
-      if (err) reject(new Error(err));
-      const activeEmployees = people.filter(person => {
-        return person.user.is_active === true;
-      }).map(activePerson => {
-        return activePerson.user;
-      });
-      resolve(activeEmployees);
+    harvest.users.list({}, (err, res, people) => {
+      try {
+        const activeEmployees = people.filter(person => person.user.is_active === true).map(activePerson => activePerson.user);
+        resolve(activeEmployees);
+      } catch (err) {
+        reject(err)
+      }
     });
   })
 };
 
-const fetchReport = (options) => {
+const fetchReport = (id, options) => {
   return new Promise((resolve, reject) => {
-    harvest.Reports.timeEntriesByUser(options, (err, data) => {
-      if (err) reject(new Error(err));
-      let hours = 0;
-      if (data) {
-        hours = data.reduce((total, current) => total + current.day_entry.hours, 0);
+    harvest.reports.timeEntriesByUser(id, options, (err, res, timeEntries) => {
+      try {
+        const hours = timeEntries.reduce((total, current) => total + current.day_entry.hours, 0);
+        resolve(hours)
+      } catch (err) {
+        reject(err);
       }
-      resolve(hours);
     });
   });
 }
@@ -48,17 +46,21 @@ const filterEmployees = (employees, department) => {
 const fetchEmployeesReports = async params => {
   const employees = await fetchEmployees();
   const filteredEmployees = filterEmployees(employees, params.department);
-  const promises = filteredEmployees.map(async employee => {
-    const totalHours = fetchReport({ from: params.from, to: params.to, user_id: employee.id });
-    const billableHours = fetchReport({ from: params.from, to: params.to, user_id: employee.id, billable: true });
-    const results = await Promise.all([billableHours, totalHours]);
+
+  const totalHoursPromises = filteredEmployees.map(employee => fetchReport(employee.id, { from: params.from, to: params.to }));
+  const billableHoursPromises = filteredEmployees.map(employee => fetchReport(employee.id, { from: params.from, to: params.to, billable: 'yes' }));
+
+  const totalHours = Promise.all(totalHoursPromises);
+  const billableHours = Promise.all(billableHoursPromises);
+  const results = await Promise.all([billableHours, totalHours]);
+
+  return filteredEmployees.map((employee, index) => {
     return {
       name: `${employee.first_name} ${employee.last_name}`,
-      billableHours: results[0],
-      totalHours: results[1]
+      billableHours: results[0][index],
+      totalHours: results[1][index]
     };
   });
-  return Promise.all(promises);
 };
 
 module.exports = {

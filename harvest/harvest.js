@@ -11,9 +11,9 @@ const harvest = new Harvest({
 const fetchEmployees =  () => {
   return new Promise((resolve, reject) => {
     harvest.users.list({}, (err, res, people) => {
-      console.log(people);
       try {
-        const activeEmployees = people.filter(person => person.user.is_active === true).map(activePerson => activePerson.user);
+        const activeEmployees = people.filter(person => person.user.is_active === true)
+          .map(activePerson => activePerson.user);
         resolve(activeEmployees);
       } catch (err) {
         reject(err)
@@ -48,8 +48,12 @@ const fetchEmployeesReports = async params => {
   const employees = await fetchEmployees();
   const filteredEmployees = filterEmployees(employees, params.department);
 
-  const totalHoursPromises = filteredEmployees.map(employee => fetchReport(employee.id, { from: params.from, to: params.to }));
-  const billableHoursPromises = filteredEmployees.map(employee => fetchReport(employee.id, { from: params.from, to: params.to, billable: 'yes' }));
+  const totalHoursPromises = filteredEmployees.map(employee => {
+    return fetchReport(employee.id, { from: params.from, to: params.to })
+  });
+  const billableHoursPromises = filteredEmployees.map(employee => {
+    return fetchReport(employee.id, { from: params.from, to: params.to, billable: 'yes' })
+  });
 
   const totalHours = Promise.all(totalHoursPromises);
   const billableHours = Promise.all(billableHoursPromises);

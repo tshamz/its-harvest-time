@@ -1,30 +1,9 @@
 'use strict';
 
-const Q = require('q');
-
 /**
- * Harvest Integration
+ * Start Express.js app
  */
 
-const harvest = require('./harvest/harvest.js');
+const app = require('./app/app.js');
 
-const fetchEmployees = function () {
-  harvest.employees();
-};
-
-/**
- * ExpressJS App
- */
-
-const express = require('./app/app.js');
-
-const startExpress = function () {
-  return express.start();
-};
-
-/**
- * Init
- */
-
-Q.fcall(startExpress)
-  .then(fetchEmployees);
+app.start();

@@ -1,10 +1,9 @@
 'use strict';
 
-const Q = require('q');
-const http = require('http');
-const express = require('express');
-const bodyParser = require('body-parser');
-const methodOverride = require('method-override');
+const http             = require('http');
+const express          = require('express');
+const bodyParser       = require('body-parser');
+const methodOverride   = require('method-override');
 
 const app = express();
 const router = express.Router();
@@ -17,7 +16,7 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(methodOverride());
 
-router.all('*', function(req, res, next){
+router.all('*', (req, res, next) => {
   if (!req.get('Origin')) {
     return next();
   }
@@ -34,17 +33,17 @@ router.all('*', function(req, res, next){
 router.get('/', routes.index);
 router.get('/api/report', routes.report);
 
-app.use(function(req, res, next){  // if route not found, respond with 404
+app.use((req, res, next) => {
   const jsonData = {
     status: 'ERROR',
     message: 'Sorry, we cannot find the requested URI'
   };
-  res.status(404).send(jsonData);  // set status as 404 and respond with data
+  res.status(404).send(jsonData);
 });
 
-const createExpressServer = function () {
-  return Q.Promise(function (resolve, reject, notify) {
-    http.createServer(app).listen(app.get('port'), function() {
+const createExpressServer = () => {
+  return new Promise((resolve, reject) => {
+    http.createServer(app).listen(app.get('port'), () => {
       console.log('Express server listening on port ' + app.get('port'));
       resolve();
     });

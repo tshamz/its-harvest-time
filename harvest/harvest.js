@@ -66,7 +66,7 @@ const fetchEmployeesReports = async params => {
     // const totalHoursPromise = getHours(employee.id, { from: params.from, to: params.to });
     // const billableHoursPromise = getHours(employee.id, { from: params.from, to: params.to, billable: 'yes' });
     const totalHoursPromise = getHours(employee.id, params);
-    const billableHoursPromise = getHours(employee.id, params, true);
+    const billableHoursPromise = getHours(employee.id, params);
     const [totalHours, billableHours] = await Promise.all([totalHoursPromise, billableHoursPromise]);
     return {
       name: `${employee.first_name} ${employee.last_name}`,

@@ -62,18 +62,38 @@ const filterEmployees = (employees, department) => {
 const fetchEmployeesReports = async params => {
   const employees = await fetchEmployees();
   const filteredEmployees = filterEmployees(employees, params.department);
-  const data = filteredEmployees.map(async employee => {
-    // const totalHoursPromise = getHours(employee.id, { from: params.from, to: params.to });
-    // const billableHoursPromise = getHours(employee.id, { from: params.from, to: params.to, billable: 'yes' });
-    const totalHoursPromise = getHours(employee.id, params);
-    const billableHoursPromise = getHours(employee.id, params);
-    const [totalHours, billableHours] = await Promise.all([totalHoursPromise, billableHoursPromise]);
+
+  const billableData = filteredEmployees.map(employee => {
+    return getHours(employee.id, params, true);
+  });
+  const resolvedBillableData = await Promise.all(billableData);
+
+  const totalData = filteredEmployees.map(employee => {
+    return getHours(employee.id, params);
+  });
+  const resolvedTotalData = await Promise.all(billableData);
+
+  const data = filteredEmployees.map((employee, index) => {
     return {
       name: `${employee.first_name} ${employee.last_name}`,
-      billableHours,
-      totalHours
-    };
+      // billableHours: resolvedBillableData[index],
+      billableHours: resolvedTotalData[index],
+      totalHours: resolvedTotalData[index]
+    }
   });
+
+  // const data = filteredEmployees.map(async employee => {
+  //   // const totalHoursPromise = getHours(employee.id, { from: params.from, to: params.to });
+  //   // const billableHoursPromise = getHours(employee.id, { from: params.from, to: params.to, billable: 'yes' });
+  //   const totalHoursPromise = getHours(employee.id, params);
+  //   const billableHoursPromise = getHours(employee.id, params, true);
+  //   const [totalHours, billableHours] = await Promise.all([totalHoursPromise, billableHoursPromise]);
+  //   return {
+  //     name: `${employee.first_name} ${employee.last_name}`,
+  //     billableHours,
+  //     totalHours
+  //   };
+  // });
 
   return await Promise.all(data);
 };

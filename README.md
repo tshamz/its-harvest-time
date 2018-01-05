@@ -6,6 +6,6 @@
 
 >simple endpoint to get data from harvest api without any trouble
 
-used in combination with [this](https://github.com/tshamz/time-is-a-flat-circle).
+used in combination with [this](https://github.com/tshamz/the-thunderdome).
 
 a leaderboard for tracking total hours/billable hours from harvest.

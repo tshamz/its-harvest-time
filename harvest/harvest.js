@@ -13,7 +13,7 @@ const harvest = new Harvest({
 
 const fetchEmployees = () => {
   return new Promise((resolve, reject) => {
-    harvest.People.list({}, (err, people) => {
+    harvest.users.list({}, (err, res, people) => {
       try {
         const activeEmployees = people
           .filter(person => person.user.is_active === true)
@@ -30,7 +30,7 @@ const getHours = (id, params, billable) => {
   const {department, ...rest} = params;
   const options = (billable) ? { ...rest, user_id: id, billable: 'yes' } : { ...rest, user_id: id };
   return new Promise((resolve, reject) => {
-    harvest.Reports.timeEntriesByUser(options, (err, timeEntries) => {
+    harvest.reports.timeEntriesByUser(options, (err, res, timeEntries) => {
       try {
         const hours = timeEntries.reduce((total, current) => total + current.day_entry.hours, 0);
         resolve(hours);

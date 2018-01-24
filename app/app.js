@@ -38,6 +38,7 @@ const createExpressServer = () => {
   return new Promise((resolve, reject) => {
     http.createServer(app).listen(app.get('port'), () => {
       console.log('Express server listening on port ' + app.get('port'));
+      console.log('\n\nHIIIIIIIIII!\n\n');
       resolve();
     });
   });
